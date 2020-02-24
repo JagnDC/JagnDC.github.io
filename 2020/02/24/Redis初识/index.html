@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="redis," />
 
 
 
@@ -79,12 +79,24 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="JagnDC">
-<meta property="og:url" content="http://www.github.com/JagnDC/archives/2020/index.html">
+<meta name="description" content="初识RedisRedis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识Redis">
+<meta property="og:url" content="http://www.github.com/JagnDC/2020/02/24/Redis%E5%88%9D%E8%AF%86/index.html">
 <meta property="og:site_name" content="JagnDC">
+<meta property="og:description" content="初识RedisRedis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValu">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-84e2b36df3700de8417fa052b3ac19b8_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d67c538b3a759800eb8102b5eeefee01_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-3ea442fd9cfba7ae0569f40e764dd8f0_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-b971a5e0d88583cdb8c5c550b5e5b2ab_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-76238e772c8bb5feaa5bb20e4207cfcf_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-eb813169598035287738730a5f53c2cc_hd.jpg">
+<meta property="article:published_time" content="2020-02-24T09:06:05.394Z">
+<meta property="article:modified_time" content="2020-02-24T10:13:12.058Z">
 <meta property="article:author" content="JagnDC">
+<meta property="article:tag" content="redis">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic1.zhimg.com/80/v2-84e2b36df3700de8417fa052b3ac19b8_hd.jpg">
 
 
 
@@ -114,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://www.github.com/JagnDC/archives/2020/"/>
+  <link rel="canonical" href="http://www.github.com/JagnDC/2020/02/24/Redis初识/"/>
 
 
 
 
 
-  <title>归档 | JagnDC</title>
+  <title>初识Redis | JagnDC</title>
   
 
 
@@ -139,7 +151,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -277,111 +289,221 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
-
-      <span class="archive-page-counter">
-        
-        
-        
-          
-        
-        嗯..! 目前共计 2 篇日志。 继续努力。
-      </span>
-
-      
-
-        
-        
-        
-
-        
-          
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2020">2020</h1>
-          </div>
-        
-        
-
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.github.com/JagnDC/2020/02/24/Redis%E5%88%9D%E8%AF%86/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JagnDC">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JagnDC">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2020/02/24/Redis%E5%88%9D%E8%AF%86/" itemprop="url">
-              
-                <span itemprop="name">初识Redis</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">初识Redis</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-02-24T17:06:05+08:00"
-              content="2020-02-24" >
-          02-24
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-24T17:06:05+08:00">
+                2020-02-24
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
 
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/02/15/hello-world/" itemprop="url">
-              
-                <span itemprop="name">Hello World</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2020-02-15T16:58:53+08:00"
-              content="2020-02-15" >
-          02-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
+      
+        <h2 id="初识Redis"><a href="#初识Redis" class="headerlink" title="初识Redis"></a>初识Redis</h2><p>Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。</p>
+<h3 id="我们可以从缓存开始熟悉"><a href="#我们可以从缓存开始熟悉" class="headerlink" title="我们可以从缓存开始熟悉"></a>我们可以从缓存开始熟悉</h3><p>实现一个缓存</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// get value from cache</span></span><br><span class="line"><span class="keyword">String</span> value = <span class="built_in">map</span>.<span class="built_in">get</span>(<span class="string">"someKey"</span>);</span><br><span class="line"><span class="keyword">if</span>(null == value) &#123;</span><br><span class="line"> <span class="comment">// get value from DataBase</span></span><br><span class="line"> value = queryValueFromDB(<span class="string">"someKey"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>HashMap、TreeMap这些都线程不安全，可以用HashTable或者ConcurrentHashMap。</p>
+<p>不管你用什么样的Map，它的背后都是key-value的Hash表结构，目的就是为了实现O(1)复杂度的查找算法，Redis也是这样实现的，另一个常用的缓存框架Memcached也是。</p>
+<p>Hash表的数据结构是怎样的呢？<br><img src="https://pic1.zhimg.com/80/v2-84e2b36df3700de8417fa052b3ac19b8_hd.jpg" alt="hash"></p>
+<p>简单说，Hash表就是一个数组，而这个数组的元素，是一个链表。</p>
+<p>为什么元素是链表？理论上，如果我们的数组可以做成无限大，那么每来一个key，我们都可以把它放到一个新的位置。但是这样很明显不可行，数组越大，占用的内存就越大。</p>
+<p>所以我们需要限制数组的大小，假设是16，那么计算出key的hash值后，对16取模，得出一个0~15的数，然后放到数组对应的位置上去。</p>
+<p>好，现在key1放到index为2的位置，突然又来了一个key9，刚好他也要放到index为2的位置，那咋办，总不能把人家key1给踢掉吧？所以key1的信息必须存储在一个链表结构里面，这样key9来了之后，只需要把key1所在的链表节点的next，指向key9的链表节点即可。</p>
+<p>很明显，链表越长，Hash表的查询、插入、删除等操作的性能都会下降，极端情况下，如果全部元素都放到了一个链表里头，复杂度就会降为O(n)，也就和顺序查找算法无异了。（正因如此，Java8里头的HashMap在元素增长到一定程度时会从链表转成一颗红黑树，来减缓查找性能的下降）</p>
+<p>怎么解决？rehash。关于rehash，这里就不细讲了，大家可以先了解一下Java HashMap的resize函数，然后再通过这篇文章：<a href="https://medium.com/@kousiknath/a-little-internal-on-redis-key-value-storage-implementation-fdf96bac7453" target="_blank" rel="noopener">A little internal on redis key value storage implementation</a> 去了解Redis的rehash算法，你会惊讶的发现Redis里头居然是两个HashTable。</p>
+<h3 id="C-S架构"><a href="#C-S架构" class="headerlink" title="C/S架构"></a>C/S架构</h3><p>作为Redis用户，我们要怎样把数据放到上面提到的Hash表里呢？</p>
+<p>我们可以通过Redis的命令行，当然也可以通过各种语言的Redis API，在代码里面对Hash表进行操作，所以我们可以将Redis看作是一个C/S架构，客户端是各种操作，Hash表是服务端。</p>
+<p>显然，Client和Server可以是在一台机器上的，也可以不在：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-d67c538b3a759800eb8102b5eeefee01_hd.jpg" alt="client"></p>
+<p><a href="http://try.redis.io/" target="_blank" rel="noopener">try redis</a>这个网站可以用来熟悉Reids的操作</p>
+<p>值得一提的是，Redis的Server是单线程服务器，基于Event-Loop模式来处理Client的请求，这一点和NodeJS很相似。使用单线程的好处包括：</p>
+<ul>
+<li><p>不必考虑线程安全问题。很多操作都不必加锁，既简化了开发，又提高了性能；</p>
+</li>
+<li><p>减少线程切换损耗的时间。线程一多，CPU在线程之间切来切去是非常耗时的，单线程服务器则没有了这个烦恼；</p>
+</li>
+</ul>
+<p>当然，单线程服务器最大的问题自然是无法充分利用多处理器。</p>
+<h3 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h3><p>搭起这样一个框架，一台客户端，一台Redis缓存服务器</p>
+<p>随着系统中使用Redis的客户端越来越多，会带来两个问题：</p>
+<ul>
+<li>Redis内存不足：随着使用Redis的客户端越来越多，Redis上的缓存数据也越来越大，而一台机器的内存毕竟是有限的，放不了那么多数据；</li>
+<li>Redis吞吐量低：客户端变多了，可Redis还是只有一台，而且我们已经知道，Redis是单线程的！一台机器的带宽和处理器都是有限的，Redis自然会忙不过来，吞吐量已经不足以支撑我们越来越庞大的系统。</li>
+</ul>
+<p>可以通过集群的方式解决问题</p>
+<p><img src="https://pic1.zhimg.com/80/v2-3ea442fd9cfba7ae0569f40e764dd8f0_hd.jpg" alt="集群"></p>
+<p>客户端的请求会通过负载均衡算法（通常是一致性Hash），分散到各个Redis服务器上。</p>
+<p>通过集群，我们实现了两个特性：</p>
+<ul>
+<li>扩大缓存容量；</li>
+<li>提升吞吐量；</li>
+</ul>
+<p>解决了上面提到的两个问题。</p>
+<h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3><p>现在我们已经把Redis升级到了集群，真可谓效果杠杠的，可运行了一段时间后，运维又过来反馈了两个问题：</p>
+<ul>
+<li>数据可用性差：如果其中一台Redis挂了，那么上面全部的缓存数据都会丢失，导致原来可以从缓存中获取的请求，都去访问数据库了，数据库压力陡增。</li>
+<li>数据查询缓慢：监测发现，每天有一段时间，Redis 1的访问量非常高，而且大多数请求都是去查一个相同的缓存数据，导致Redis 1非常忙碌，吞吐量不足以支撑这个高的查询负载。</li>
+</ul>
+<p>问题分析完，要想解决可用性问题，我们第一个想到的，就是数据库里头经常用到的Master-Slave模式，于是，我们给每一台Redis都加上了一台Slave：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-b971a5e0d88583cdb8c5c550b5e5b2ab_hd.jpg" alt="slave"></p>
+<p>通过Master-Slave模式，我们又实现了两个特性：</p>
+<ul>
+<li>数据高可用：Master负责接收客户端的写入请求，将数据写到Master后，同步给Slave，实现数据备份。一旦Master挂了，可以将Slave提拔为Master；</li>
+<li>提高查询效率：一旦Master发现自己忙不过来了，可以把一些查询请求，转发给Slave去处理，也就是Master负责读写或者只负责写，Slave负责读；</li>
+</ul>
+<p>为了让Master-Slave模式发挥更大的威力，我们当然可以放更多的Slave，就像这样：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-76238e772c8bb5feaa5bb20e4207cfcf_hd.jpg" alt="更多slave"></p>
+<p>可这样又引发了另一个问题，那就是Master进行数据备份的工作量变大了，Slava每增加一个，Master就要多备份一次，于是又有了Master/slave chains的架构：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-eb813169598035287738730a5f53c2cc_hd.jpg" alt="chains"></p>
+<p>这样最顶层的Master的备份压力就没那么大了，它只需要备份两次，然后让那它底下的那两台Slave再去和他们的Slave备份。</p>
+<p>事实上，Redis内部要处理的问题还有很多：</p>
+<ul>
+<li>数据结构。文章一开头提到了，Redis不仅仅是数据存储器，而是数据结构存储器。那是因为Redis支持客户端直接往里面塞各种类型的数据结构，比如String、List、Set、SortedSet、Map等等。你或许会问，这很了不起吗？我自己在Java里写一个HashTable不也可以放各种数据结构？呵呵，要知道你的HashTable只能放Java对象，人家那可是支持多语言的，不管你的客户端是Java还是Python还是别的，都可以往Redis塞数据结构。这一点也是Redis和Memcached相比，非常不同的一点。当然Redis要支持数据结构存储，是以牺牲更多内存为代价的，正所谓有利必有弊。关于Redis里头的数据结构，大家可以参考：<a href="https://redis.io/topics/data-types-intro" target="_blank" rel="noopener">Redis Data Types</a></li>
+<li>剔除策略。缓存数据总不能无限增长吧，总得剔除掉一些数据，好让新的缓存数据放进来吧？这就需要LRU算法了，大家可以参考：<a href="https://redis.io/topics/lru-cache" target="_blank" rel="noopener">Redis Lru Cache</a></li>
+<li>负载均衡。用到了集群，就免不了需要用到负载均衡，用什么负载均衡算法？在哪里使用负载均衡？这点大家可以参考：<a href="https://redis.io/topics/partitioning" target="_blank" rel="noopener">Redis Partitioning</a></li>
+<li>Presharding。如果一开始只有三台Redis服务器，后来发现需要加多一台才能满足业务需要，要怎么办？Redis提供了一种策略，叫：<a href="https://redis.io/topics/partitioning#presharding" target="_blank" rel="noopener">Presharding</a></li>
+<li>数据持久化。如果我的机器突然全部断电了，我的缓存数据还能恢复吗？Redis说，相信我，可以的，不然我怎么用作数据库？去看看这个：<a href="https://redis.io/topics/persistence" target="_blank" rel="noopener">Redis Persistence</a>]</li>
+<li>数据同步。这篇文章里提到了主从复制，那么Redis是怎么进行主从复制的呢？根据CAP理论，既然我们已经选择了集群，也就是P，分区容忍性，那么剩下那两个，Consistency和Availability只能选择一个了，那么Redis到底是支持最终一致性还是强一致性呢？可以参考：<a href="https://redis.io/topics/replication" target="_blank" rel="noopener">Redis Replication</a></li>
+</ul>
+<blockquote>
+<p>参考知乎<a href="https://zhuanlan.zhihu.com/p/37055648" target="_blank" rel="noopener">Redis简明教程</a></p>
+</blockquote>
+
+      
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/15/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -389,6 +511,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -409,8 +535,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -461,6 +596,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#初识Redis"><span class="nav-number">1.</span> <span class="nav-text">初识Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#我们可以从缓存开始熟悉"><span class="nav-number">1.1.</span> <span class="nav-text">我们可以从缓存开始熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-S架构"><span class="nav-number">1.2.</span> <span class="nav-text">C&#x2F;S架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群"><span class="nav-number">1.3.</span> <span class="nav-text">集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主从复制"><span class="nav-number">1.4.</span> <span class="nav-text">主从复制</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -621,6 +772,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

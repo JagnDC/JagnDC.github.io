@@ -1,6 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spark初识</title>
+    <url>/2020/02/25/Spark%E5%88%9D%E8%AF%86/</url>
+    <content><![CDATA[<h1 id="Spark-一-·-初识"><a href="#Spark-一-·-初识" class="headerlink" title="Spark(一) · 初识"></a>Spark(一) · 初识</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>需要的环境</p>
+<ul>
+<li>Linux</li>
+<li>Python : 3.6</li>
+<li>Hadoop : 5.7以上</li>
+<li>Spark : 2.3.0以上</li>
+<li>ElasticSearch : 6.3.0</li>
+<li>Kibana : 6.3.0</li>
+<li>JDK : 1.8</li>
+<li>Azkaban : 3.x</li>
+</ul>
+<p>掌握技巧</p>
+<ul>
+<li>tar解压命令</li>
+<li>环境的配置</li>
+</ul>
+<h2 id="PySpark-Spark-Core核心RDD"><a href="#PySpark-Spark-Core核心RDD" class="headerlink" title="PySpark-Spark Core核心RDD"></a>PySpark-Spark Core核心RDD</h2><h3 id="RDD"><a href="#RDD" class="headerlink" title="RDD"></a>RDD</h3><h4 id="什么是RDD"><a href="#什么是RDD" class="headerlink" title="什么是RDD"></a>什么是RDD</h4><p>源码： <a href="https://github.com/apache/spark" target="_blank" rel="noopener">https://github.com/apache/spark</a></p>
+<p>1) RDD是一个抽象类<br>2) 带泛型，可以支持多种类型</p>
+<p>RDD: Resilient Distributed Dataset 弹性 分布式 数据集</p>
+<p>Represents an<br>immutable 不可变<br>partitioned collection of elements 分区<br>that can be operated on in parallel. 并行计算</p>
+<p>单机存储/计算 ==&gt; 分布式存储/计算</p>
+<p>1) 数据的存储: 切割    HDFS的Block<br>2) 数据的计算: 切割(分布式并行计算)    MapReduce/Spark<br>3) 存储+计算: HDFS/S3+MapReduce/Spark</p>
+<h4 id="RDD的特性"><a href="#RDD的特性" class="headerlink" title="RDD的特性"></a>RDD的特性</h4><p>Internally, each RDD is characterized by five main properties:</p>
+<ul>
+<li>A list of partitions</li>
+<li>系列的分区/分片</li>
+<li>A function for computing each split</li>
+<li>操作是对每个分区的</li>
+<li>A list of dependencies on other RDDs</li>
+<li>RDD存在依赖关系(核心,非常重要)</li>
+<li>Optionally, a Partitioner for key-value RDDs (e.g. to say that the RDD is hash-partitioned)</li>
+<li>分区策略</li>
+<li>Optionally, a list of preferred locations to compute each split on (e.g. block locations for an HDFS file)</li>
+<li>数据在哪优先把作业调度到数据所在的节点进行计算</li>
+</ul>
+<p><strong>五大特性</strong></p>
+<ul>
+<li>def compute(split: Partition, context: TaskContext): Iterator[T] 特性二</li>
+<li>def getPartitions: Array[Partition] 特性一</li>
+<li>def getDependencies: Seq[Dependency[_]] = deps 特性三</li>
+<li>def getPreferredLocations(split: Partition): Seq[String] = Nil 特性五</li>
+<li>val partitioner: Option[Partitioner] = None 特性四</li>
+</ul>
+<p>有两种方式创建RDD </p>
+<ul>
+<li><p>把一个集合转成RDD Parallelized Collections</p>
+</li>
+<li><p>把外部数据集Hadoop的兼容转换成RDD External Datasets</p>
+</li>
+</ul>
+<h3 id="SparkContext-amp-SparkConf"><a href="#SparkContext-amp-SparkConf" class="headerlink" title="SparkContext&amp;SparkConf"></a>SparkContext&amp;SparkConf</h3><p>第一要务:创建SparkContext</p>
+<ul>
+<li><p>连接到Spark集群:local,standalone,yarn,mesos</p>
+</li>
+<li><p>通过SparkContext来创建RDD，广播变量到集群</p>
+</li>
+</ul>
+<p>在创建SparkContext之前还需要创建SparkConf(优先级高于系统)</p>
+<h3 id="PySpark脚本"><a href="#PySpark脚本" class="headerlink" title="PySpark脚本"></a>PySpark脚本</h3><h3 id="Spark应用程序及开发"><a href="#Spark应用程序及开发" class="headerlink" title="Spark应用程序及开发"></a>Spark应用程序及开发</h3><p>1) IDE: pycharm</p>
+<p>2) 设置基本参数: python interceptor  PYTHONPATH SPARK_HOME 2zip包</p>
+<p>3) 开发</p>
+<p>4) 使用local进行本地测试</p>
+<p>提交pyspark应用程序</p>
+<pre><code>spark-submit --master local[2] --name sparktest /home/***/*.py</code></pre>]]></content>
+  </entry>
+  <entry>
     <title>初识Redis</title>
     <url>/2020/02/24/Redis%E5%88%9D%E8%AF%86/</url>
     <content><![CDATA[<h2 id="初识Redis"><a href="#初识Redis" class="headerlink" title="初识Redis"></a>初识Redis</h2><p>Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。</p>

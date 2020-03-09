@@ -121,7 +121,7 @@
 <li><p>同样，如果子查询需要执行多次，即采用循环的方式，先从外部查询开始，每次都传入子查询进行查询，然后再将结果反馈给外部，这种嵌套的执行方式就称为关联子查询。</p>
 </li>
 </ul>
-]]></content>
+<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
       <tags>
         <tag>SQL</tag>
       </tags>

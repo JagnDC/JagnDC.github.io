@@ -40,7 +40,7 @@
 
   
   
-  <link href="/blog/library/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+  <link href="/library/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
 
 
 
@@ -48,21 +48,21 @@
 
 
 
-<link href="/blog/library/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+<link href="/library/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="/blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png?v=5.1.4">
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png?v=5.1.4">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png?v=5.1.4">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
 
 
-  <link rel="mask-icon" href="/blog/images/logo.svg?v=5.1.4" color="#222">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
 
 
 
@@ -82,7 +82,7 @@
 <meta name="description" content="初识RedisRedis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="初识Redis">
-<meta property="og:url" content="http://jagndc.gitee.io/blog/2020/02/24/Redis%E5%88%9D%E8%AF%86/index.html">
+<meta property="og:url" content="http://www.github.com/JagnDC/2020/02/24/Redis%E5%88%9D%E8%AF%86/index.html">
 <meta property="og:site_name" content="JagnDC">
 <meta property="og:description" content="初识RedisRedis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValu">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-84e2b36df3700de8417fa052b3ac19b8_hd.jpg">
@@ -103,7 +103,7 @@
 <script type="text/javascript" id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/blog/',
+    root: '/',
     scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
@@ -126,7 +126,7 @@
 
 
 
-  <link rel="canonical" href="http://jagndc.gitee.io/blog/2020/02/24/Redis初识/"/>
+  <link rel="canonical" href="http://www.github.com/JagnDC/2020/02/24/Redis初识/"/>
 
 
 
@@ -160,7 +160,7 @@
     
 
     <div class="custom-logo-site-title">
-      <a href="/blog/"  class="brand" rel="start">
+      <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
         <span class="site-title">JagnDC</span>
         <span class="logo-line-after"><i></i></span>
@@ -188,7 +188,7 @@
       
         
         <li class="menu-item menu-item-home">
-          <a href="/blog/" rel="section">
+          <a href="/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
@@ -198,7 +198,7 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/blog/tags/" rel="section">
+          <a href="/tags/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
@@ -208,7 +208,7 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/blog/categories/" rel="section">
+          <a href="/categories/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
@@ -218,7 +218,7 @@
       
         
         <li class="menu-item menu-item-archives">
-          <a href="/blog/archives/" rel="section">
+          <a href="/archives/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
@@ -228,7 +228,7 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/blog/about/" rel="section">
+          <a href="/about/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
             
@@ -303,12 +303,12 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jagndc.gitee.io/blog/blog/2020/02/24/Redis%E5%88%9D%E8%AF%86/">
+    <link itemprop="mainEntityOfPage" href="http://www.github.com/JagnDC/2020/02/24/Redis%E5%88%9D%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JagnDC">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -462,7 +462,7 @@
       
         <div class="post-tags">
           
-            <a href="/blog/tags/Redis/" rel="tag"># Redis</a>
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
           
         </div>
       
@@ -475,7 +475,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2020/02/15/hello-world/" rel="next" title="Hello World">
+              <a href="/2020/02/15/hello-world/" rel="next" title="Hello World">
                 <i class="fa fa-chevron-left"></i> Hello World
               </a>
             
@@ -485,7 +485,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2020/02/25/Spark%E5%88%9D%E8%AF%86/" rel="prev" title="Spark(一) · 初识">
+              <a href="/2020/02/25/Spark%E5%88%9D%E8%AF%86/" rel="prev" title="Spark(一) · 初识">
                 Spark(一) · 初识 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -562,7 +562,7 @@
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/blog/archives/">
+                <a href="/archives/">
               
                   <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">日志</span>
@@ -576,7 +576,7 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/blog/tags/index.html">
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
@@ -727,64 +727,64 @@
 
   
   
-    <script type="text/javascript" src="/blog/library/jquery/index.js?v=2.1.3"></script>
+    <script type="text/javascript" src="/library/jquery/index.js?v=2.1.3"></script>
   
 
   
   
-    <script type="text/javascript" src="/blog/library/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+    <script type="text/javascript" src="/library/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
   
 
   
   
-    <script type="text/javascript" src="/blog/library/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+    <script type="text/javascript" src="/library/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
   
 
   
   
-    <script type="text/javascript" src="/blog/library/velocity/velocity.min.js?v=1.2.1"></script>
+    <script type="text/javascript" src="/library/velocity/velocity.min.js?v=1.2.1"></script>
   
 
   
   
-    <script type="text/javascript" src="/blog/library/velocity/velocity.ui.min.js?v=1.2.1"></script>
+    <script type="text/javascript" src="/library/velocity/velocity.ui.min.js?v=1.2.1"></script>
   
 
   
   
-    <script type="text/javascript" src="/blog/library/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+    <script type="text/javascript" src="/library/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
   
-
-
-  
-
-
-  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/blog/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
-
-  
-  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
-
 
 
   
 
 
-  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.4"></script>
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
 
 
 
@@ -834,7 +834,7 @@
     } else if (/json$/i.test(search_path)) {
       isXml = false;
     }
-    var path = "/blog/" + search_path;
+    var path = "/" + search_path;
     // monitor main search box;
 
     var onPopupClose = function (e) {

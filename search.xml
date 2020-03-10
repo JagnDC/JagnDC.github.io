@@ -296,8 +296,210 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 <p>事务是数据库区别于文件系统的重要特性之一，当我们有了事务就会让数据库始终保持一致性，同时我们还能通过事务的机制恢复到某个时间点，这样可以保证已提交到数据库的修改不会因为系统崩溃而丢失。</p>
 <img src="/2020/03/08/SQL_1/%E4%BA%8B%E5%8A%A1%E5%A4%84%E7%90%86.png" class title="事务处理">
 
-<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2></li>
+<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2><h3 id="事务并发的可能异常"><a href="#事务并发的可能异常" class="headerlink" title="事务并发的可能异常"></a>事务并发的可能异常</h3><p>SQL-92 标准中已经对 3 种异常情况进行了定义，这些异常情况级别分别为脏读（Dirty Read）、不可重复读（Nnrepeatable Read）和幻读（Phantom Read）。</p>
+</li>
+<li><p>脏读：读到了其他事务还没有提交的数据。</p>
+</li>
+<li><p>不可重复读：对某数据进行读取，发现两次读取的结果不同，也就是说没有读到相同的内容。这是因为有其他事务对这个数据同时进行了修改或删除。</p>
+</li>
+<li><p>幻读：事务 A 根据条件查询得到了 N 条数据，但此时事务 B 更改或者增加了 M 条符合事务 A 查询条件的数据，这样当事务 A 再次进行查询的时候发现会有 N+M 条数据，产生了幻读。</p>
+</li>
 </ol>
+<p>  <strong>不可重复读 VS 幻读的区别：</strong></p>
+<ul>
+<li><p>不可重复读是同一条记录的内容被修改了，重点在于UPDATE或DELETE</p>
+</li>
+<li><p>幻读是查询某一个范围的数据行变多了或者少了，重点在于INSERT</p>
+<p>SQL-92 标准还定义了 4 种隔离级别来解决这些异常情况。</p>
+<p>解决异常数量从少到多的顺序（比如读未提交可能存在 3 种异常，可串行化则不会存在这些异常）决定了隔离级别的高低，这四种隔离级别从低到高分别是：读未提交（READ UNCOMMITTED ）、读已提交（READ COMMITTED）、可重复读（REPEATABLE READ）和可串行化（SERIALIZABLE）。这些隔离级别能解决的异常情况如下表所示：</p>
+<img src="/2020/03/08/SQL_1/%E8%A7%A3%E5%86%B3%E5%BC%82%E5%B8%B8.png" class title="解决异常">
+</li>
+<li><p>读未提交，也就是允许读到未提交的数据，这种情况下查询是不会使用锁的，可能会产生脏读、不可重复读、幻读等情况。</p>
+</li>
+<li><p>读已提交就是只能读到已经提交的内容，可以避免脏读的产生，属于 RDBMS 中常见的默认隔离级别（比如说 Oracle 和 SQL Server），但如果想要避免不可重复读或者幻读，就需要我们在 SQL 查询的时候编写带加锁的 SQL 语句（我会在进阶篇里讲加锁）。</p>
+</li>
+<li><p>可重复读，保证一个事务在相同查询条件下两次查询得到的数据结果是一致的，可以避免不可重复读和脏读，但无法避免幻读。MySQL 默认的隔离级别就是可重复读。</p>
+</li>
+<li><p>可串行化，将事务进行串行化，也就是在一个队列中按照顺序执行，可串行化是最高级别的隔离等级，可以解决事务读取中所有可能出现的异常情况，但是它牺牲了系统的并发性。</p>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><p>隔离级别的实现满足了下面的两个条件：</p>
+</li>
+<li><p>正确性：只要能满足某一个隔离级别，一定能解决这个隔离级别对应的异常问题。</p>
+</li>
+<li><p>与实现无关：实际上 RDBMS 种类很多，这就意味着有多少种 RDBMS，就有多少种锁的实现方式，因此它们实现隔离级别的原理可能不同，然而一个好的标准不应该限制其实现的方式。</p>
+<p>隔离级别越低，意味着系统吞吐量（并发程度）越大，但同时也意味着出现异常问题的可能性会更大。在实际使用过程中我们往往需要在性能和正确性上进行权衡和取舍，没有完美的解决方案，只有适合与否。</p>
+<img src="/2020/03/08/SQL_1/%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB.png" class title="事务隔离">
+
+<h2 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h2><p>在数据库中，游标是个重要的概念，它提供了一种灵活的操作方式，可以让我们从数据结果集中每次提取一条数据记录进行操作。游标让 SQL 这种面向集合的语言有了面向过程开发的能力。可以说，游标是面向过程的编程方式，这与面向集合的编程方式有所不同。</p>
+<p>在 SQL 中，游标是一种临时的数据库对象，可以指向存储在数据库表中的数据行指针。这里游标充当了指针的作用，我们可以通过操作游标来对数据行进行操作。</p>
+<h3 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h3><p>游标实际上是一种控制数据集的更加灵活的处理方式。</p>
+<p>如果我们想要使用游标，一般需要经历五个步骤。不同 DBMS 中，使用游标的语法可能略有不同。</p>
+</li>
+</ul>
+<ol>
+<li>定义游标。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> cursor_name <span class="keyword">CURSOR</span> <span class="keyword">FOR</span> select_statement</span><br></pre></td></tr></table></figure>
+
+<p>  要使用 SELECT 语句来获取数据结果集，而此时还没有开始遍历数据，这里 select_statement 代表的是 SELECT 语句。</p>
+<ol start="2">
+<li>打开游标</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">OPEN cursor_name</span><br></pre></td></tr></table></figure>
+
+<p>  当我们定义好游标之后，如果想要使用游标，必须先打开游标。打开游标的时候 SELECT 语句的查询结果集就会送到游标工作区。</p>
+<ol start="3">
+<li>从游标中取得数据</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">FETCH cursor_name INTO var_name ...</span><br></pre></td></tr></table></figure>
+
+<p>  这句的作用是使用 cursor_name 这个游标来读取当前行，并且将数据保存到 var_name 这个变量中，游标指针指到下一行。如果游标读取的数据行有多个列名，则在 INTO 关键字后面赋值给多个变量名即可。</p>
+<ol start="4">
+<li>关闭游标</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">CLOSE cursor_name</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>释放游标</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DEALLOCATE</span> <span class="keyword">PREPARE</span></span><br></pre></td></tr></table></figure>
+
+<p>  我们一定要养成释放游标的习惯，否则游标会一直存在于内存中，直到进程结束后才会自动释放。当你不需要使用游标的时候，释放游标可以减少资源浪费。</p>
+<p>  例子：<br>  先创建一个存储过程 calc_hp_max，然后在存储过程中定义游标 cur_hero，使用 FETCH 获取每一行的具体数值，然后赋值给变量 hp，再用变量 hp_sum 做累加求和，最后再输出 hp_sum，代码如下：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> <span class="string">`calc_hp_max`</span>()</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">        <span class="comment">-- 创建接收游标的变量</span></span><br><span class="line">        <span class="keyword">DECLARE</span> hp <span class="built_in">INT</span>;  </span><br><span class="line">        <span class="comment">-- 创建总数变量 </span></span><br><span class="line">        <span class="keyword">DECLARE</span> hp_sum <span class="built_in">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">-- 创建结束标志变量  </span></span><br><span class="line">        <span class="keyword">DECLARE</span> done <span class="built_in">INT</span> <span class="keyword">DEFAULT</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">-- 定义游标     </span></span><br><span class="line">        <span class="keyword">DECLARE</span> cur_hero <span class="keyword">CURSOR</span> <span class="keyword">FOR</span> <span class="keyword">SELECT</span> hp_max <span class="keyword">FROM</span> heros;</span><br><span class="line">        <span class="comment">-- 指定游标循环结束时的返回值  </span></span><br><span class="line">        <span class="keyword">DECLARE</span> CONTINUE <span class="keyword">HANDLER</span> <span class="keyword">FOR</span> <span class="keyword">NOT</span> <span class="keyword">FOUND</span> <span class="keyword">SET</span> done = <span class="literal">true</span>;  </span><br><span class="line">        OPEN cur_hero;</span><br><span class="line">        read_loop:LOOP </span><br><span class="line">        FETCH cur_hero INTO hp;</span><br><span class="line">        <span class="keyword">SET</span> hp_sum = hp_sum + hp;</span><br><span class="line">        <span class="keyword">END</span> <span class="keyword">LOOP</span>;</span><br><span class="line">        CLOSE cur_hero;</span><br><span class="line">        <span class="keyword">SELECT</span> hp_sum;</span><br><span class="line">        <span class="keyword">DEALLOCATE</span> <span class="keyword">PREPARE</span> cur_hero;</span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
+
+<p>  当游标溢出时（也就是当游标指向到最后一行数据后继续执行会报的错误），我们可以定义一个 continue 的事件，指定这个事件发生时修改变量 done 的值，以此来判断游标是否已经溢出，即：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DECLARE</span> CONTINUE <span class="keyword">HANDLER</span> <span class="keyword">FOR</span> <span class="keyword">NOT</span> <span class="keyword">FOUND</span> <span class="keyword">SET</span> done = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+
+<p>  在游标中的循环中，除了使用 LOOP 循环以外，你还可以使用 REPEAT… UNTIL…以及 WHILE 循环。它们同样需要设置 CONTINUE 事件来处理游标溢出的情况。</p>
+<p>  所以你能看出，使用游标可以让我们对 SELECT 结果集中的每一行数据进行相同或者不同的操作，从而很精细化地管理结果集中的每一条数据。</p>
+<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><p>  游标实际上是面向过程的思维方式，与面向集合的思维方式不同的地方在于，游标更加关注“如何执行”。我们可以通过游标更加精细、灵活地查询和管理想要的数据行。</p>
+<p>  有的时候，我们需要找特定数据，用 SQL 查询写起来会比较困难，比如两表或多表之间的嵌套循环查找，如果用 JOIN 会非常消耗资源，效率也可能不高，而用游标则会比较高效。</p>
+<p>  虽然在处理某些复杂的数据情况下，使用游标可以更灵活，但同时也会带来一些性能问题，比如在使用游标的过程中，会对数据行进行加锁，这样在业务并发量大的时候，不仅会影响业务之间的效率，还会消耗系统资源，造成内存不足，这是因为游标是在内存中进行的处理。如果有游标的替代方案，我们可以采用替代方案。</p>
+  <img src="/2020/03/08/SQL_1/%E6%B8%B8%E6%A0%87.png" class title="游标">
+
+<h2 id="Python-DB-API"><a href="#Python-DB-API" class="headerlink" title="Python DB API"></a>Python DB API</h2><p>  Python 可以支持非常多的数据库管理系统，比如 MySQL、Oracle、SQL Server 和 PostgreSQL 等。为了实现对这些 DBMS 的统一访问，Python 需要遵守一个规范，这就是 DB API 规范。</p>
+  <img src="/2020/03/08/SQL_1/pythonAPI.png" class title="pythonAPI">
+
+<p>  使用 Python 对 DBMS 进行操作的时候，需要经过下面的几个步骤：</p>
+<ul>
+<li><p>引入 API 模块；</p>
+</li>
+<li><p>与数据库建立连接；</p>
+</li>
+<li><p>执行 SQL 语句；</p>
+</li>
+<li><p>关闭数据库连接。</p>
+<h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><p>例子：</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> mysql.connector</span><br><span class="line"><span class="comment"># 打开数据库连接</span></span><br><span class="line">db = mysql.connector.connect(</span><br><span class="line">       host=<span class="string">"localhost"</span>,</span><br><span class="line">       user=<span class="string">"root"</span>,</span><br><span class="line">       passwd=<span class="string">"XXX"</span>, <span class="comment"># 写上你的数据库密码</span></span><br><span class="line">       database=<span class="string">'wucai'</span>, </span><br><span class="line">       auth_plugin=<span class="string">'mysql_native_password'</span></span><br><span class="line">)</span><br><span class="line"><span class="comment"># 获取操作游标 </span></span><br><span class="line">cursor = db.cursor()</span><br><span class="line"><span class="comment"># 执行 SQL 语句</span></span><br><span class="line">cursor.execute(<span class="string">"SELECT VERSION()"</span>)</span><br><span class="line"><span class="comment"># 获取一条数据</span></span><br><span class="line">data = cursor.fetchone()</span><br><span class="line">print(<span class="string">"MySQL 版本: %s "</span> % data)</span><br><span class="line"><span class="comment"># 关闭游标 &amp; 数据库连接</span></span><br><span class="line">cursor.close()</span><br><span class="line">db.close()</span><br></pre></td></tr></table></figure>
+
+<p>  以上代码有两个重要部分Connection 和 Cursor</p>
+<p>  Connection 就是对数据库的当前连接进行管理，我们可以通过它来进行以下操作：</p>
+<ol>
+<li><p>通过指定 host、user、passwd 和 port 等参数来创建数据库连接，这些参数分别对应着数据库 IP 地址、用户名、密码和端口号；</p>
+</li>
+<li><p>使用 db.close() 关闭数据库连接；</p>
+</li>
+<li><p>使用 db.cursor() 创建游标，操作数据库中的数据；</p>
+</li>
+<li><p>使用 db.begin() 开启事务；</p>
+</li>
+<li><p>使用 db.commit() 和 db.rollback()，对事务进行提交以及回滚。</p>
+<p>当我们通过cursor = db.cursor()创建游标后，就可以通过面向过程的编程方式对数据库中的数据进行操作：</p>
+</li>
+<li><p>使用cursor.execute(query_sql)，执行数据库查询；</p>
+</li>
+<li><p>使用cursor.fetchone()，读取数据集中的一条数据；</p>
+</li>
+<li><p>使用cursor.fetchall()，取出数据集中的所有行，返回一个元组 tuples 类型；</p>
+</li>
+<li><p>使用cursor.fetchmany(n)，取出数据集中的多条数据，同样返回一个元组 tuples；</p>
+</li>
+<li><p>使用cursor.rowcount，返回查询结果集中的行数。如果没有查询到数据或者还没有查询，则结果为 -1，否则会返回查询得到的数据行数；</p>
+</li>
+<li><p>使用cursor.close()，关闭游标。</p>
+<p>增删改查的时候可以使用捕获异常</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> traceback</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">  sql = <span class="string">"INSERT INTO player (team_id, player_name, height) VALUES (%s, %s, %s)"</span></span><br><span class="line">  val = (<span class="number">1003</span>, <span class="string">" 约翰 - 科林斯 "</span>, <span class="number">2.08</span>)</span><br><span class="line">  cursor.execute(sql, val)</span><br><span class="line">  db.commit()</span><br><span class="line">  print(cursor.rowcount, <span class="string">" 记录插入成功。"</span>)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">  <span class="comment"># 打印异常信息</span></span><br><span class="line">  traceback.print_exc()</span><br><span class="line">  <span class="comment"># 回滚  </span></span><br><span class="line">  db.rollback()</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">  <span class="comment"># 关闭数据库连接</span></span><br><span class="line">  db.close()</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h3><p>  在使用基于 DB API 规范的协议时，重点需要掌握 Connection 和 Cursor 这两个对象，Connection 就是对数据库的连接进行管理，而 Cursor 是对数据库的游标进行管理，通过它们，我们可以执行具体的 SQL 语句，以及处理复杂的数据。</p>
+<p>  用 Python 操作 MySQL，还有很多种姿势，mysql-connector 只是其中一种，实际上还有另外一种方式，就是采用 ORM 框架。ORM 的英文是 Object Relational Mapping，也就是采用对象关系映射的模式，使用这种模式可以将数据库中各种数据表之间的关系映射到程序中的对象。这种模式可以屏蔽底层的数据库的细节，不需要我们与复杂的 SQL 语句打交道，直接采用操作对象的形式操作就可以。</p>
+  <img src="/2020/03/08/SQL_1/pythonMySQL.png" class title="pythonMySQL">
+
+<h2 id="ORM框架"><a href="#ORM框架" class="headerlink" title="ORM框架"></a>ORM框架</h2><p>  持久化层在业务逻辑层和数据库层起到了衔接的作用，它可以将内存中的数据模型转化为存储模型，或者将存储模型转化为内存中的数据模型。</p>
+  
+
+<p>  在程序的层面操作数据，其实都是把数据放到内存中进行处理，如果需要数据就会通过持久化层，从数据库中取数据；如果需要保存数据，就是将对象数据通过持久化层存储到数据库中。</p>
+<p>   ORM 提供了一种持久化模式，可以高效地对数据库进行访问。ORM 的英文是 Object Relation Mapping，中文叫对象关系映射。它是 RDBMS 和业务实体对象之间的一个映射，从图中你也能看到，它可以把底层的 RDBMS 封装成业务实体对象，提供给业务逻辑层使用。程序员往往关注业务逻辑层面，而不是底层数据库该如何访问，以及如何编写 SQL 语句获取数据等等。采用 ORM，就可以从数据库的设计层面转化成面向对象的思维。</p>
+<p>   没有一种模式是完美的，采用 ORM 当然也会付出一些代价，比如性能上的一些损失。面对一些复杂的数据查询，ORM 会显得力不从心。虽然可以实现功能，但相比于直接编写 SQL 查询语句来说，ORM 需要编写的代码量和花费的时间会比较多，这种情况下，直接编写 SQL 反而会更简单有效。</p>
+<h3 id="python中的三种主流ORM框架"><a href="#python中的三种主流ORM框架" class="headerlink" title="python中的三种主流ORM框架"></a>python中的三种主流ORM框架</h3><ol>
+<li><p>Django，它是 Python 的 WEB 应用开发框架，本身走大而全的方式。Django 采用了 MTV 的框架模式，包括了 Model（模型），View（视图）和 Template（模版）。Model 模型只是 Django 的一部分功能，我们可以通过它来实现数据库的增删改查操作。</p>
+
+</li>
+<li><p>SQLALchemy，它也是 Python 中常用的 ORM 框架之一。它提供了 SQL 工具包及 ORM 工具，如果你想用支持 ORM 和支持原生 SQL 两种方式的工具，那么 SQLALchemy 是很好的选择。另外 SQLALchemy 的社区更加活跃，这对项目实施会很有帮助。</p>
+</li>
+<li><p>peewee，这是一个轻量级的 ORM 框架，简单易用。peewee 采用了 Model 类、Field 实例和 Model 实例来与数据库建立映射关系，从而完成面向对象的管理方式。使用起来方便，学习成本也低。</p>
+<h3 id="SQLAlchemy-操作-MySQL"><a href="#SQLAlchemy-操作-MySQL" class="headerlink" title="SQLAlchemy 操作 MySQL"></a>SQLAlchemy 操作 MySQL</h3><p>pip install sqlalchemy<br>初始化数据库连接</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine</span><br><span class="line"><span class="comment"># 初始化数据库连接，修改为你的数据库用户名和密码</span></span><br><span class="line">engine = create_engine(<span class="string">'mysql+mysqlconnector://root:password@localhost:3306/wucai'</span>)</span><br><span class="line"><span class="comment"># mysql+mysqlconnector，后面的是用户名:密码@IP地址:端口号/数据库名称</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="创建模型"><a href="#创建模型" class="headerlink" title="创建模型"></a>创建模型</h4></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> Column, String, Integer, Float</span><br><span class="line"><span class="comment"># 定义 Player 对象:</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Player</span><span class="params">(Base)</span>:</span></span><br><span class="line">    <span class="comment"># 表的名字:</span></span><br><span class="line">    __tablename__ = <span class="string">'player'</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment"># 表的结构:</span></span><br><span class="line">    player_id = Column(Integer, primary_key=<span class="literal">True</span>, autoincrement=<span class="literal">True</span>)</span><br><span class="line">    team_id = Column(Integer)</span><br><span class="line">    player_name = Column(String(<span class="number">255</span>))</span><br><span class="line">    height = Column(Float(<span class="number">3</span>,<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<p>  <strong>tablename</strong> 指明了模型对应的数据表名称，即 player 数据表。同时我们在 Player 模型中对采用的变量名进行定义，变量名需要和数据表中的字段名称保持一致，否则会找不到数据表中的字段。</p>
+<h4 id="增删改查"><a href="#增删改查" class="headerlink" title="增删改查"></a>增删改查</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建 DBSession 类型:</span></span><br><span class="line">DBSession = sessionmaker(bind=engine)</span><br><span class="line"><span class="comment"># 创建 session 对象:</span></span><br><span class="line">session = DBSession()</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="comment"># 创建 Player 对象:</span></span><br><span class="line">new_player = Player(team_id = <span class="number">1003</span>, player_name = <span class="string">" 约翰 - 科林斯 "</span>, height = <span class="number">2.08</span>)</span><br><span class="line"><span class="comment"># 添加到 session:</span></span><br><span class="line">session.add(new_player)</span><br><span class="line"><span class="comment"># 提交即保存到数据库:</span></span><br><span class="line">session.commit()</span><br><span class="line"><span class="comment"># 关闭 session:</span></span><br><span class="line">session.close()</span><br></pre></td></tr></table></figure>
+
+<p>  查询数据</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 增加 to_dict() 方法到 Base 类中</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">to_dict</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> &#123;c.name: getattr(self, c.name, <span class="literal">None</span>)</span><br><span class="line">            <span class="keyword">for</span> c <span class="keyword">in</span> self.__table__.columns&#125;</span><br><span class="line"><span class="comment"># 将对象可以转化为 dict 类型</span></span><br><span class="line">Base.to_dict = to_dict</span><br><span class="line"><span class="comment"># 查询身高 &gt;=2.08 的球员有哪些</span></span><br><span class="line">rows = session.query(Player).filter(Player.height &gt;= <span class="number">2.08</span>).all()</span><br><span class="line">print([row.to_dict() <span class="keyword">for</span> row <span class="keyword">in</span> rows])</span><br></pre></td></tr></table></figure>
+
+<p>  删除数据</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">row = session.query(Player).filter(Player.player_name==<span class="string">'约翰 - 科林斯'</span>).first()</span><br><span class="line">session.delete(row)</span><br><span class="line">session.commit()</span><br><span class="line">session.close()</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结-5"><a href="#总结-5" class="headerlink" title="总结"></a>总结</h3><p>  如果项目本身不大，那么自己动手写 SQL 语句会比较简单，可以不使用 ORM 工具，而是直接使用 mysql-connector。但是随着项目代码量的增加，为了在业务逻辑层与数据库底层进行松耦合，采用 ORM 框架是更加适合的。</p>
+  
+
+
+<h2 id="基础总结"><a href="#基础总结" class="headerlink" title="基础总结"></a>基础总结</h2><ul>
+<li><p>列式数据库是将数据按照列存储到数据库中，这样做的好处是可以大量降低系统的 I/O</p>
+<p>行式存储是把一行的数据都串起来进行存储，然后再存储下一行。同样，列式存储是把一列的数据都串起来进行存储，然后再存储下一列。这样做的话，相邻数据的数据类型都是一样的，更容易压缩，压缩之后就自然降低了 I/O。</p>
+<p>数据处理可以分为 OLTP（联机事务处理）和 OLAP（联机分析处理）两大类。</p>
+<p>OLTP 一般用于处理客户的事务和进行查询，需要随时对数据表中的记录进行增删改查，对实时性要求高。</p>
+<p>OLAP 一般用于市场的数据分析，通常数据量大，需要进行复杂的分析操作，可以对大量历史数据进行汇总和分析，对实时性要求不高。</p>
+<p>那么对于 OLTP 来说，由于随时需要对数据记录进行增删改查，更适合采用行式存储，因为一行数据的写入会同时修改多个列。传统的 RDBMS 都属于行式存储，比如 Oracle、SQL Server 和 MySQL 等。</p>
+<p>对于 OLAP 来说，由于需要对大量历史数据进行汇总和分析，则适合采用列式存储，这样的话汇总数据会非常快，但是对于插入（INSERT）和更新（UPDATE）会比较麻烦，相比于行式存储性能会差不少。</p>
+<p>所以说列式存储适合大批量数据查询，可以降低 I/O，但如果对实时性要求高，则更适合行式存储。</p>
+</li>
+<li><p>在 MySQL InnoDB 存储引擎中，COUNT(*)和COUNT(1)都是对所有结果进行COUNT。如果有 WHERE 子句，则是对所有符合筛选条件的数据行进行统计；如果没有 WHERE 子句，则是对数据表的数据行数进行统计。</p>
+<p>一般情况下，三者执行的效率为 COUNT(*)= COUNT(1)&gt; COUNT(字段)。我们尽量使用COUNT(*)，当然如果你要统计的是某个字段的非空数据行数，则另当别论，毕竟比较执行效率的前提是结果一样才可以。<br>如果要统计COUNT(*),尽量在数据表上建立二级索引，系统会自动采用key_len小的二级索引进行扫描，这样当我们使用SELECT COUNT(*)的时候效率就会提升，有时候可以提升几倍甚至更高。</p>
+</li>
+<li><p>一条完整的 SELECT 语句内部的执行顺序是这样的：</p>
+</li>
+</ul>
+<ol>
+<li>FROM 子句组装数据（包括通过 ON 进行连接）；</li>
+<li>WHERE 子句进行条件筛选；</li>
+<li>GROUP BY 分组 ；</li>
+<li>使用聚集函数进行计算；</li>
+<li>HAVING 筛选分组；</li>
+<li>计算所有的表达式；</li>
+<li>SELECT 的字段；</li>
+<li>ORDER BY 排序；</li>
+<li>LIMIT 筛选。</li>
+</ol>
+<ul>
+<li><p>varchar和nvarchar区别</p>
+<ul>
+<li><p>相同点：可变长度，字符类型数据</p>
+</li>
+<li><p>不同点：</p>
+<p>  varchar(n)是n个字节，非Unicode字符。（英文字母占1个字节，中文占2个字节）</p>
+<p>  而nvarchar(n)是n个字符，Unicode字符。（英文字母或者中文都是占用2个字节）</p>
+</li>
+</ul>
+<p>举个例子，varchar(10)代表10个字节，所以可以是10个英文字母，也可以是5个汉字。<br>而nvarchar(10)代表10个字符，这10个字符可以是10个字母，也可以是10个汉字（英文字母或者中文 都是占用2个字节）</p>
+</li>
+</ul>
 ]]></content>
       <tags>
         <tag>SQL</tag>

@@ -503,7 +503,125 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
   <entry>
     <title>Spark(二) · 核心编程</title>
     <url>/2020/02/26/Spark%E6%A0%B8%E5%BF%83%E7%BC%96%E7%A8%8B/</url>
-    <content><![CDATA[<h1 id="Spark-二-·-核心编程"><a href="#Spark-二-·-核心编程" class="headerlink" title="Spark(二) · 核心编程"></a>Spark(二) · 核心编程</h1>]]></content>
+    <content><![CDATA[<h2 id="RDD常用操作"><a href="#RDD常用操作" class="headerlink" title="RDD常用操作"></a>RDD常用操作</h2><h3 id="RDD-Operation"><a href="#RDD-Operation" class="headerlink" title="RDD Operation"></a>RDD Operation</h3><ol>
+<li><p>transformations: which create a new dataset from an existing one</p>
+<p> lazy()<br> map/filter/group by/distinct/…</p>
+</li>
+<li><p>actions: which return a value to the driver program after running a computation on the dataset</p>
+<p> count/reduce/collect/….</p>
+</li>
+</ol>
+<p>transformations are lazy. The transformations are only computed when an action requires a result to be returned to the driver program. </p>
+<p>action triggers the computation, returns values to driver or writes data to external storage.</p>
+<h4 id="transformations"><a href="#transformations" class="headerlink" title="transformations"></a>transformations</h4><ol>
+<li><p>map:</p>
+<p> map(func) </p>
+<p> 将func函数作用到数据集的每一个元素上，生成一个新的分布式数据集返回</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_map</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">    rdd1 = sc.parallelize(data)</span><br><span class="line">    rdd2 = rdd1.map(<span class="keyword">lambda</span> x: x*<span class="number">2</span>)</span><br><span class="line">    print(rdd2.collect())</span><br></pre></td></tr></table></figure>
+
+
+<ol start="2">
+<li><p>filter：</p>
+<p> filter(func)</p>
+<p> 选出所有func返回值为true的元素，生成一个新的分布式数据集返回</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_filter</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">    rdd1 = sc.parallelize(data)</span><br><span class="line">    mapRdd = rdd1.map(<span class="keyword">lambda</span> x: x*<span class="number">2</span>)</span><br><span class="line">    filterRdd = mapRdd.filter(<span class="keyword">lambda</span> x: x &gt; <span class="number">5</span>)</span><br><span class="line">    print(filterRdd.collect())</span><br><span class="line"></span><br><span class="line">    print(sc.parallelize(data).map(</span><br><span class="line">        <span class="keyword">lambda</span> x: x*<span class="number">2</span>).filter(<span class="keyword">lambda</span> x: x &gt; <span class="number">5</span>).collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>flatMap：</p>
+<p> faltMap(func)</p>
+<p> 输入的item能够被map到0或者多个items输出，返回值是一个Sequence</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_flatMap</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="string">'hello spark'</span>, <span class="string">'hello world'</span>, <span class="string">'hello world'</span>]</span><br><span class="line">    print(sc.parallelize(data).flatMap(</span><br><span class="line">        <span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>)).collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><p>groupByKey：</p>
+<p> groupByKey(func)</p>
+<p> 把相同的key的数据分发到一起</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_groupBy</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="string">'hello spark'</span>, <span class="string">'hello world'</span>, <span class="string">'hello world'</span>]</span><br><span class="line">    rdd = sc.parallelize(data)</span><br><span class="line">    mapRdd = rdd.flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>)</span><br><span class="line">                            ).map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line">    groupByRdd = mapRdd.groupByKey()</span><br><span class="line">    print(groupByRdd.collect())</span><br><span class="line">    print(groupByRdd.map(<span class="keyword">lambda</span> x: &#123;x[<span class="number">0</span>]: list(x[<span class="number">1</span>])&#125;).collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><p>reduceByKey：</p>
+<p> reduceByKey(func)</p>
+<p> 把相同的key的数据分发到一起，并进行相应的计算</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_reduceByKey</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="string">'hello spark'</span>, <span class="string">'hello world'</span>, <span class="string">'hello world'</span>]</span><br><span class="line">    rdd = sc.parallelize(data)</span><br><span class="line">    mapRdd = rdd.flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>)</span><br><span class="line">                            ).map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line">    reduceByKeyRdd = mapRdd.reduceByKey(<span class="keyword">lambda</span> a, b: a+b)</span><br><span class="line">    print(reduceByKeyRdd.collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><p>sortByKey：</p>
+<p> 顺序排列，按照key的顺序，缺省True为升序，False为降序</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_sortByKey</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="string">'hello spark'</span>, <span class="string">'hello world'</span>, <span class="string">'hello world'</span>]</span><br><span class="line">    rdd = sc.parallelize(data)</span><br><span class="line">    mapRdd = rdd.flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>)</span><br><span class="line">                            ).map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line">    reduceByKeyRdd = mapRdd.reduceByKey(<span class="keyword">lambda</span> a, b: a+b)</span><br><span class="line">    print(reduceByKeyRdd.collect())</span><br><span class="line">    print(reduceByKeyRdd.map(<span class="keyword">lambda</span> x:(x[<span class="number">1</span>], x[<span class="number">0</span>])).sortByKey(<span class="literal">False</span>).map(<span class="keyword">lambda</span> x:(x[<span class="number">1</span>], x[<span class="number">0</span>])).collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li><p>union：</p>
+<p> 数据集并集</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_union</span><span class="params">()</span>:</span></span><br><span class="line">    a = sc.parallelize([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br><span class="line">    b = sc.parallelize([<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line">    print(a.union(b).collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li><p>distinct：</p>
+<p> 取唯一</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_distinct</span><span class="params">()</span>:</span></span><br><span class="line">    a = sc.parallelize([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br><span class="line">    b = sc.parallelize([<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line">    print(a.union(b).collect())</span><br><span class="line">    print(a.union(b).distinct().collect())</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li><p>join：</p>
+<p> 连接：左连接/右连接/全连接</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_join</span><span class="params">()</span>:</span></span><br><span class="line">    a = sc.parallelize([(<span class="string">'A'</span>, <span class="string">'a1'</span>), (<span class="string">'C'</span>, <span class="string">'c1'</span>), (<span class="string">'D'</span>, <span class="string">'d1'</span>), (<span class="string">'F'</span>, <span class="string">'f1'</span>), (<span class="string">'F'</span>, <span class="string">'f2'</span>)])</span><br><span class="line">    b = sc.parallelize([(<span class="string">'A'</span>, <span class="string">'a2'</span>), (<span class="string">'C'</span>, <span class="string">'c2'</span>), (<span class="string">'C'</span>, <span class="string">'c3'</span>), (<span class="string">'E'</span>, <span class="string">'e1'</span>)])</span><br><span class="line">    print(a.join(b).collect())</span><br><span class="line">    print(a.leftOuterJoin(b).collect())</span><br><span class="line">    print(a.rightOuterJoin(b).collect())</span><br><span class="line">    print(a.fullOuterJoin(b).collect())</span><br></pre></td></tr></table></figure>
+
+<h4 id="actions"><a href="#actions" class="headerlink" title="actions"></a>actions</h4><p>collect/count/take/max/min/sum/reduce/foreach/…</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_action</span><span class="params">()</span>:</span></span><br><span class="line">    data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">    rdd = sc.parallelize(data)</span><br><span class="line">    print(rdd.collect())</span><br><span class="line">    print(rdd.count())</span><br><span class="line">    print(rdd.take(<span class="number">3</span>))</span><br><span class="line">    print(rdd.max())</span><br><span class="line">    print(rdd.min())</span><br><span class="line">    print(rdd.sum())</span><br><span class="line">    print(rdd.reduce(<span class="keyword">lambda</span> x, y: x+y))</span><br><span class="line">    rdd.foreach(<span class="keyword">lambda</span> x: print(x))</span><br></pre></td></tr></table></figure>
+
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><h4 id="词频统计"><a href="#词频统计" class="headerlink" title="词频统计"></a>词频统计</h4><ol>
+<li><p>input：</p>
+<p> 文件 文件夹 后缀名</p>
+</li>
+<li><p>步骤分析：</p>
+<p> 文本内容转成一个个单词 ：flatMap</p>
+<p> 单词 ==&gt; (单词， 1) ：map</p>
+<p> 统计相加 ：reduceByKey</p>
+</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) != <span class="number">3</span>:</span><br><span class="line">        print(<span class="string">'Usage: wordcount &lt;input&gt;&lt;output&gt;'</span>, file=sys.stderr)</span><br><span class="line">        sys.exit(<span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line">    conf = SparkConf()</span><br><span class="line">    sc = SparkContext(conf = conf)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">printResult</span><span class="params">()</span>:</span></span><br><span class="line">        counts = sc.textFile(sys.argv[<span class="number">1</span>])\</span><br><span class="line">            .flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>))\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))\</span><br><span class="line">            .reduceByKey(<span class="keyword">lambda</span> a, b: a+b)</span><br><span class="line"></span><br><span class="line">        output = counts.collect()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(word, count) <span class="keyword">in</span> output:</span><br><span class="line">            print(<span class="string">'%s : %i'</span>%(word, count))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">saveFile</span><span class="params">()</span>:</span></span><br><span class="line">        counts = sc.textFile(sys.argv[<span class="number">1</span>])\</span><br><span class="line">            .flatMap(<span class="keyword">lambda</span> x:x.split(<span class="string">' '</span>))\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x:(x, <span class="number">1</span>))\</span><br><span class="line">            .reduceByKey(<span class="keyword">lambda</span> a, b:a+b)\</span><br><span class="line">            .saveAsTextFile(sys.argv[<span class="number">2</span>])</span><br><span class="line"></span><br><span class="line">        output = counts.collect()</span><br><span class="line">        print(output)</span><br><span class="line"></span><br><span class="line">    printResult()</span><br><span class="line">    saveFile()</span><br><span class="line"></span><br><span class="line">    sc.stop()</span><br></pre></td></tr></table></figure>
+
+<h4 id="TopN"><a href="#TopN" class="headerlink" title="TopN"></a>TopN</h4><ol>
+<li><p>input：</p>
+<p> 文件 文件夹 后缀名</p>
+</li>
+<li><p>求某个维度的topn</p>
+</li>
+<li><p>步骤分析：</p>
+<p> 文本内容的每一行根据需求提取所需要的字段：map</p>
+<p> 单词 ==&gt; (单词, 1)：map</p>
+<p> 所有相同的相加：reduceByKey</p>
+<p> 取最多出现的次数降序：sortByKey</p>
+</li>
+</ol>
+<h4 id="平均数"><a href="#平均数" class="headerlink" title="平均数"></a>平均数</h4><ol>
+<li><p>input:</p>
+<p> id age</p>
+</li>
+<li><p>步骤分析：</p>
+<p> 读取数据取出年龄：map</p>
+<p> 计算总和：reduce</p>
+<p> 计算个数：count</p>
+<p> 求平均</p>
+</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) != <span class="number">2</span>:</span><br><span class="line">        print(<span class="string">'Usage: wordcount &lt;input&gt;&lt;output&gt;'</span>, file=sys.stderr)</span><br><span class="line">        sys.exit(<span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line">    conf = SparkConf()</span><br><span class="line">    sc = SparkContext(conf = conf)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">topn</span><span class="params">()</span>:</span></span><br><span class="line">        counts = sc.textFile(sys.argv[<span class="number">1</span>])\</span><br><span class="line">            .flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>))\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))\</span><br><span class="line">            .reduceByKey(<span class="keyword">lambda</span> a, b: a+b)\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x:(x[<span class="number">1</span>], x[<span class="number">0</span>]))\</span><br><span class="line">            .sortByKey(<span class="literal">False</span>)\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x:(x[<span class="number">1</span>], x[<span class="number">0</span>])).take(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(word, count) <span class="keyword">in</span> counts:</span><br><span class="line">            print(<span class="string">'%s : %i'</span>%(word, count))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">average</span><span class="params">()</span>:</span></span><br><span class="line">        agedata = sc.textFile(sys.argv[<span class="number">1</span>]).map(<span class="keyword">lambda</span> x:x.split(<span class="string">' '</span>)[<span class="number">1</span>])</span><br><span class="line">        reducedata = agedata.map(<span class="keyword">lambda</span> age:int(age)).reduce(<span class="keyword">lambda</span> a,b:a+b)</span><br><span class="line">        countdata = agedata.count()</span><br><span class="line">        avgdata = reducedata/countdata</span><br><span class="line"></span><br><span class="line">        print(agedata.collect())</span><br><span class="line">        print(reducedata)</span><br><span class="line">        print(countdata)</span><br><span class="line">        print(avgdata)</span><br><span class="line"></span><br><span class="line">    average()</span><br><span class="line"></span><br><span class="line">    sc.stop()</span><br></pre></td></tr></table></figure>]]></content>
       <tags>
         <tag>Spark</tag>
       </tags>
@@ -511,7 +629,7 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
   <entry>
     <title>Spark(一) · 初识</title>
     <url>/2020/02/25/Spark%E5%88%9D%E8%AF%86/</url>
-    <content><![CDATA[<h1 id="Spark-一-·-初识"><a href="#Spark-一-·-初识" class="headerlink" title="Spark(一) · 初识"></a>Spark(一) · 初识</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>需要的环境</p>
+    <content><![CDATA[<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>需要的环境</p>
 <ul>
 <li>Linux</li>
 <li>Python : 3.6</li>

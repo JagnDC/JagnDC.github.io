@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="JagnDC">
 <meta property="og:description" content="前提安装过java，确认可用 java -version创建haddop用户组和用户1234sudo addgroup hadoopsudo adduser --ingroup hadoop hdusersudo adduser hduser sudo su hduser  安装和配置ssh1sudo apt-get install openssh-server  切换到hduser用户，执行如下">
 <meta property="article:published_time" content="2020-02-09T03:23:32.000Z">
-<meta property="article:modified_time" content="2020-03-17T04:33:53.568Z">
+<meta property="article:modified_time" content="2020-03-17T12:19:40.976Z">
 <meta property="article:author" content="JagnDC">
 <meta property="article:tag" content="Hadoop">
 <meta property="article:tag" content="教程">
@@ -438,9 +438,31 @@
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jps</span><br><span class="line"><span class="comment"># 最好用sudo</span></span><br><span class="line">sudo jps</span><br></pre></td></tr></table></figure>
 
 <p> 顺利的话可以看的：</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">23313 DataNode</span><br><span class="line">10421 Master</span><br><span class="line">23749 ResourceManager</span><br><span class="line">23559 SecondaryNameNode</span><br><span class="line">23112 NameNode</span><br><span class="line">24104 NodeManager</span><br><span class="line">10605 Worker</span><br><span class="line">6942 Jps</span><br></pre></td></tr></table></figure></li>
-</ol>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">23313 DataNode</span><br><span class="line">10421 Master</span><br><span class="line">23749 ResourceManager</span><br><span class="line">23559 SecondaryNameNode</span><br><span class="line">23112 NameNode</span><br><span class="line">24104 NodeManager</span><br><span class="line">10605 Worker</span><br><span class="line">6942 Jps</span><br></pre></td></tr></table></figure>
 
+</li>
+</ol>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="namenode不启动"><a href="#namenode不启动" class="headerlink" title="namenode不启动"></a>namenode不启动</h3><ol>
+<li><p>先运行 </p>
+<pre><code>stop-all.sh</code></pre></li>
+<li><p>格式化namdenode</p>
+<p> 不过在这之前要先删除原目录，即core-site.xml下配置的<name>hadoop.tmp.dir</name>所指向的目录，删除后切记要重新建立配置的空目录，然后运行</p>
+<pre><code>hadoop namenode -format</code></pre><p> 请务必检查文件夹位置是否正确</p>
+</li>
+<li><p>运行 </p>
+<pre><code>start-all.sh</code></pre></li>
+</ol>
+<h3 id="datanode不启动"><a href="#datanode不启动" class="headerlink" title="datanode不启动"></a>datanode不启动</h3><p>当我们使用hadoop namenode -format格式化namenode时，会在namenode数据文件夹（这个文件夹为自己配置文件中dfs.name.dir的路径）中保存一个current/VERSION文件，记录clusterID，datanode中保存的current/VERSION文件中的clustreID的值是上一次格式化保存的clusterID，这样，datanode和namenode之间的ID不一致。</p>
+<ol>
+<li><p>如果dfs文件夹中没有重要的数据，那么删除dfs文件夹，再重新运行下列指令： （删除节点下的dfs文件夹，为自己配置文件中dfs.name.dir的路径）</p>
+</li>
+<li><p>如果dfs文件中有重要的数据，那么在dfs/name目录下找到一个current/VERSION文件，记录clusterID并复制。然后dfs/data目录下找到一个current/VERSION文件，将其中clustreID的值替换成刚刚复制的clusterID的值即可；</p>
+</li>
+</ol>
+<p><strong>注意</strong></p>
+<p>每次运行结束Hadoop后，都应该关闭Hadoop</p>
+<pre><code>stop-dfs.sh</code></pre><p>下次想重新运行Hadoop，不用再格式化namenode,直接启动Hadoop即可</p>
+<pre><code>start-dfs.sh</code></pre>
       
     </div>
     
@@ -561,7 +583,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -607,7 +629,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前提"><span class="nav-number">1.</span> <span class="nav-text">前提</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建haddop用户组和用户"><span class="nav-number">2.</span> <span class="nav-text">创建haddop用户组和用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装和配置ssh"><span class="nav-number">3.</span> <span class="nav-text">安装和配置ssh</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载hadoop"><span class="nav-number">4.</span> <span class="nav-text">下载hadoop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置hadoop环境"><span class="nav-number">5.</span> <span class="nav-text">配置hadoop环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置hadoop"><span class="nav-number">6.</span> <span class="nav-text">配置hadoop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动并查看服务"><span class="nav-number">7.</span> <span class="nav-text">启动并查看服务</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前提"><span class="nav-number">1.</span> <span class="nav-text">前提</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建haddop用户组和用户"><span class="nav-number">2.</span> <span class="nav-text">创建haddop用户组和用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装和配置ssh"><span class="nav-number">3.</span> <span class="nav-text">安装和配置ssh</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载hadoop"><span class="nav-number">4.</span> <span class="nav-text">下载hadoop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置hadoop环境"><span class="nav-number">5.</span> <span class="nav-text">配置hadoop环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置hadoop"><span class="nav-number">6.</span> <span class="nav-text">配置hadoop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动并查看服务"><span class="nav-number">7.</span> <span class="nav-text">启动并查看服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到的问题"><span class="nav-number">8.</span> <span class="nav-text">遇到的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#namenode不启动"><span class="nav-number">8.1.</span> <span class="nav-text">namenode不启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#datanode不启动"><span class="nav-number">8.2.</span> <span class="nav-text">datanode不启动</span></a></li></ol></li></ol></div>
             
 
           </div>

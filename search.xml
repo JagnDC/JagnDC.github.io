@@ -1,6 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spark核心进阶</title>
+    <url>/2020/03/17/Spark%E6%A0%B8%E5%BF%83%E8%BF%9B%E9%98%B6/</url>
+    <content><![CDATA[<h2 id="Spark-核心概念"><a href="#Spark-核心概念" class="headerlink" title="Spark 核心概念"></a>Spark 核心概念</h2><img src="/2020/03/17/Spark%E6%A0%B8%E5%BF%83%E8%BF%9B%E9%98%B6/%E6%A0%B8%E5%BF%83.png" class title="核心概念from官网">
+
+<ol>
+<li><p>Application</p>
+<p> User program built on Spark. Consists of a driver program and executors on the cluster.</p>
+<p> 基于Spark的应用程序 = 1 driver + executors</p>
+</li>
+<li><p>Driver program</p>
+<p> The process running the main() function of the application and creating the SparkContext</p>
+<p> 运行主函数，创建SparkContext</p>
+</li>
+<li><p>Cluster manager</p>
+<p> An external service for acquiring resources on the cluster (e.g. standalone manager, Mesos, YARN)<br> spark-submit –master local[*]/spark://localhost:7077/yarn</p>
+</li>
+<li><p>Deploy mode</p>
+<p> Distinguishes where the driver process runs. </p>
+<p> In “cluster” mode, the framework launches the driver inside of the cluster. </p>
+<p> In “client” mode, the submitter launches the driver outside of the cluster.</p>
+</li>
+<li><p>Worker node</p>
+<p> Any node that can run application code in the cluster</p>
+<ul>
+<li><p>standalone</p>
+<p>  slave节点 slaves配置文件</p>
+</li>
+<li><p>yarn</p>
+<p>  nodemanager</p>
+</li>
+</ul>
+</li>
+<li><p>Executor</p>
+<p> A process launched for an application on a worker node</p>
+<p> runs tasks</p>
+<p> keeps data in memory or disk storage across them</p>
+<p> Each application has its own executors.</p>
+</li>
+<li><p>task</p>
+<p> A unit of work that will be sent to one executor</p>
+<p> 最小工作单元</p>
+</li>
+<li><p>Job</p>
+<p> A parallel computation consisting of multiple tasks that gets spawned in response to a Spark action (e.g. save, collect); you’ll see this term used in the driver’s logs.</p>
+<p> 一个action对应一个Job</p>
+</li>
+<li><p>Stage</p>
+<p> Each job gets divided into smaller sets of tasks called stages that depend on each other </p>
+<p> (similar to the map and reduce stages in MapReduce);</p>
+<p> you’ll see this term used in the driver’s logs.</p>
+<p> 一个stage的边界往往是从某个地方取数据开始，到shuffle的地方结束</p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>一个application是由driver和executors构成的</p>
+<p>一个action对应一个job，一个job对应一到多个stage</p>
+<p>一个stage对应一到多个task</p>
+<p>task运行在executor里面</p>
+<p>executors跑在worker上面的</p>
+<h2 id="Spark-运行架构"><a href="#Spark-运行架构" class="headerlink" title="Spark 运行架构"></a>Spark 运行架构</h2><h2 id="Spark和Hadoop的概念区分"><a href="#Spark和Hadoop的概念区分" class="headerlink" title="Spark和Hadoop的概念区分"></a>Spark和Hadoop的概念区分</h2><h2 id="Spark-Cache详解"><a href="#Spark-Cache详解" class="headerlink" title="Spark Cache详解"></a>Spark Cache详解</h2><h2 id="Spark-Lineage详解"><a href="#Spark-Lineage详解" class="headerlink" title="Spark Lineage详解"></a>Spark Lineage详解</h2><h2 id="Spark-Dependency详解"><a href="#Spark-Dependency详解" class="headerlink" title="Spark Dependency详解"></a>Spark Dependency详解</h2>]]></content>
+      <tags>
+        <tag>Spark</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spark(三) · 运行模式</title>
     <url>/2020/03/13/Spark%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<ol>
@@ -846,17 +910,28 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 <p>输出：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[2, 3, 4, 5, 6, 7, 8]</span><br></pre></td></tr></table></figure>
 
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><ol>
-<li>PYTHONPATH问题</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">py4j.protocol.Py4JError: org.apache.spark.api.python.PythonUtils.getEncryptionEnabled does not exist in the JVM</span><br></pre></td></tr></table></figure>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="PYTHONPATH问题"><a href="#PYTHONPATH问题" class="headerlink" title="PYTHONPATH问题"></a>PYTHONPATH问题</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">py4j.protocol.Py4JError: org.apache.spark.api.python.PythonUtils.getEncryptionEnabled does not exist in the JVM</span><br></pre></td></tr></table></figure>
 
 <p>解决方法</p>
 <pre><code>sudo gedit .bashrc</code></pre><p>Please add $SPARK_HOME/python/build to PYTHONPATH:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> SPARK_HOME=/opt/spark-3.0.0-bin-hadoop2.7</span><br><span class="line"><span class="built_in">export</span> PYTHONPATH=<span class="variable">$SPARK_HOME</span>/python:<span class="variable">$SPARK_HOME</span>/python/build:<span class="variable">$PYTHONPATH</span></span><br></pre></td></tr></table></figure>
 
 <pre><code>source .bashrc</code></pre><p>或者在 import pyspark 之前：</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br></pre></td></tr></table></figure>
+
+<h3 id="java-net-ConnectException"><a href="#java-net-ConnectException" class="headerlink" title="java.net.ConnectException"></a>java.net.ConnectException</h3><p>用spark提交任务时报错java.net.ConnectException，出现这个问题可以从以下几个方面排查：</p>
+<ol>
+<li><p>防火墙问题</p>
+<p> 防火墙问题可以禁用防火墙或者开放相应端口</p>
+</li>
+<li><p>端口占用问题</p>
+<p> 端口占用问题的话可以netstat -nltp查看，结束占用端口的应用</p>
+</li>
+<li><p>namenode未正常启动</p>
+<p> namenode问题的话重新启动namenode</p>
+</li>
+</ol>
+]]></content>
       <tags>
         <tag>教程</tag>
         <tag>Spark</tag>
@@ -924,9 +999,31 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">jps</span><br><span class="line"><span class="comment"># 最好用sudo</span></span><br><span class="line">sudo jps</span><br></pre></td></tr></table></figure>
 
 <p> 顺利的话可以看的：</p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">23313 DataNode</span><br><span class="line">10421 Master</span><br><span class="line">23749 ResourceManager</span><br><span class="line">23559 SecondaryNameNode</span><br><span class="line">23112 NameNode</span><br><span class="line">24104 NodeManager</span><br><span class="line">10605 Worker</span><br><span class="line">6942 Jps</span><br></pre></td></tr></table></figure></li>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">23313 DataNode</span><br><span class="line">10421 Master</span><br><span class="line">23749 ResourceManager</span><br><span class="line">23559 SecondaryNameNode</span><br><span class="line">23112 NameNode</span><br><span class="line">24104 NodeManager</span><br><span class="line">10605 Worker</span><br><span class="line">6942 Jps</span><br></pre></td></tr></table></figure>
+
+</li>
 </ol>
-]]></content>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="namenode不启动"><a href="#namenode不启动" class="headerlink" title="namenode不启动"></a>namenode不启动</h3><ol>
+<li><p>先运行 </p>
+<pre><code>stop-all.sh</code></pre></li>
+<li><p>格式化namdenode</p>
+<p> 不过在这之前要先删除原目录，即core-site.xml下配置的<name>hadoop.tmp.dir</name>所指向的目录，删除后切记要重新建立配置的空目录，然后运行</p>
+<pre><code>hadoop namenode -format</code></pre><p> 请务必检查文件夹位置是否正确</p>
+</li>
+<li><p>运行 </p>
+<pre><code>start-all.sh</code></pre></li>
+</ol>
+<h3 id="datanode不启动"><a href="#datanode不启动" class="headerlink" title="datanode不启动"></a>datanode不启动</h3><p>当我们使用hadoop namenode -format格式化namenode时，会在namenode数据文件夹（这个文件夹为自己配置文件中dfs.name.dir的路径）中保存一个current/VERSION文件，记录clusterID，datanode中保存的current/VERSION文件中的clustreID的值是上一次格式化保存的clusterID，这样，datanode和namenode之间的ID不一致。</p>
+<ol>
+<li><p>如果dfs文件夹中没有重要的数据，那么删除dfs文件夹，再重新运行下列指令： （删除节点下的dfs文件夹，为自己配置文件中dfs.name.dir的路径）</p>
+</li>
+<li><p>如果dfs文件中有重要的数据，那么在dfs/name目录下找到一个current/VERSION文件，记录clusterID并复制。然后dfs/data目录下找到一个current/VERSION文件，将其中clustreID的值替换成刚刚复制的clusterID的值即可；</p>
+</li>
+</ol>
+<p><strong>注意</strong></p>
+<p>每次运行结束Hadoop后，都应该关闭Hadoop</p>
+<pre><code>stop-dfs.sh</code></pre><p>下次想重新运行Hadoop，不用再格式化namenode,直接启动Hadoop即可</p>
+<pre><code>start-dfs.sh</code></pre>]]></content>
       <tags>
         <tag>Hadoop</tag>
         <tag>教程</tag>

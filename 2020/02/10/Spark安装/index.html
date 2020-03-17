@@ -87,7 +87,7 @@
 <meta property="og:description" content="下载Spark根据地址选择下载版本 http:&#x2F;&#x2F;spark.apache.org&#x2F;downloads.html   12345678910$ tar -zvxf spark-3.0.0-bin-hadoop2.7.tgz# 配置环境变量$ sudo gedit ~&#x2F;.bashrcexport JAVA_HOME&#x3D;&#x2F;usr&#x2F;lib&#x2F;jvm&#x2F;jdk1.8.0_102export SPARK_HOME">
 <meta property="og:image" content="http://www.github.com/2020/02/10/Spark%E5%AE%89%E8%A3%85/sparkdownload.png">
 <meta property="article:published_time" content="2020-02-10T03:28:23.000Z">
-<meta property="article:modified_time" content="2020-03-17T08:14:16.161Z">
+<meta property="article:modified_time" content="2020-03-17T12:08:26.142Z">
 <meta property="article:author" content="JagnDC">
 <meta property="article:tag" content="教程">
 <meta property="article:tag" content="Spark">
@@ -396,10 +396,7 @@
 <p>输出：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[2, 3, 4, 5, 6, 7, 8]</span><br></pre></td></tr></table></figure>
 
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><ol>
-<li>PYTHONPATH问题</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">py4j.protocol.Py4JError: org.apache.spark.api.python.PythonUtils.getEncryptionEnabled does not exist in the JVM</span><br></pre></td></tr></table></figure>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="PYTHONPATH问题"><a href="#PYTHONPATH问题" class="headerlink" title="PYTHONPATH问题"></a>PYTHONPATH问题</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">py4j.protocol.Py4JError: org.apache.spark.api.python.PythonUtils.getEncryptionEnabled does not exist in the JVM</span><br></pre></td></tr></table></figure>
 
 <p>解决方法</p>
 <pre><code>sudo gedit .bashrc</code></pre><p>Please add $SPARK_HOME/python/build to PYTHONPATH:</p>
@@ -407,6 +404,20 @@
 
 <pre><code>source .bashrc</code></pre><p>或者在 import pyspark 之前：</p>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br></pre></td></tr></table></figure>
+
+<h3 id="java-net-ConnectException"><a href="#java-net-ConnectException" class="headerlink" title="java.net.ConnectException"></a>java.net.ConnectException</h3><p>用spark提交任务时报错java.net.ConnectException，出现这个问题可以从以下几个方面排查：</p>
+<ol>
+<li><p>防火墙问题</p>
+<p> 防火墙问题可以禁用防火墙或者开放相应端口</p>
+</li>
+<li><p>端口占用问题</p>
+<p> 端口占用问题的话可以netstat -nltp查看，结束占用端口的应用</p>
+</li>
+<li><p>namenode未正常启动</p>
+<p> namenode问题的话重新启动namenode</p>
+</li>
+</ol>
+
       
     </div>
     
@@ -527,7 +538,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -573,7 +584,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载Spark"><span class="nav-number">1.</span> <span class="nav-text">下载Spark</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装pyspark"><span class="nav-number">2.</span> <span class="nav-text">安装pyspark</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地安装"><span class="nav-number">2.1.</span> <span class="nav-text">本地安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pip安装"><span class="nav-number">2.2.</span> <span class="nav-text">pip安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到的问题"><span class="nav-number">4.</span> <span class="nav-text">遇到的问题</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载Spark"><span class="nav-number">1.</span> <span class="nav-text">下载Spark</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装pyspark"><span class="nav-number">2.</span> <span class="nav-text">安装pyspark</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#本地安装"><span class="nav-number">2.1.</span> <span class="nav-text">本地安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pip安装"><span class="nav-number">2.2.</span> <span class="nav-text">pip安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到的问题"><span class="nav-number">4.</span> <span class="nav-text">遇到的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PYTHONPATH问题"><span class="nav-number">4.1.</span> <span class="nav-text">PYTHONPATH问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#java-net-ConnectException"><span class="nav-number">4.2.</span> <span class="nav-text">java.net.ConnectException</span></a></li></ol></li></ol></div>
             
 
           </div>

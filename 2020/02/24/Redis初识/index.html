@@ -79,12 +79,12 @@
 
 
 
-<meta name="description" content="初识RedisRedis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValu">
+<meta name="description" content="Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValueFromDB">
 <meta property="og:type" content="article">
 <meta property="og:title" content="初识Redis">
-<meta property="og:url" content="http://www.github.com/JagnDC/blog/2020/02/24/Redis%E5%88%9D%E8%AF%86/index.html">
+<meta property="og:url" content="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/02/24/Redis%E5%88%9D%E8%AF%86/index.html">
 <meta property="og:site_name" content="JagnDC">
-<meta property="og:description" content="初识RedisRedis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValu">
+<meta property="og:description" content="Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。 我们可以从缓存开始熟悉实现一个缓存 123456&#x2F;&#x2F; get value from cacheString value &#x3D; map.get(&quot;someKey&quot;);if(null &#x3D;&#x3D; value) &amp;#123; &#x2F;&#x2F; get value from DataBase value &#x3D; queryValueFromDB">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-84e2b36df3700de8417fa052b3ac19b8_hd.jpg">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-d67c538b3a759800eb8102b5eeefee01_hd.jpg">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-3ea442fd9cfba7ae0569f40e764dd8f0_hd.jpg">
@@ -92,7 +92,7 @@
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-76238e772c8bb5feaa5bb20e4207cfcf_hd.jpg">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-eb813169598035287738730a5f53c2cc_hd.jpg">
 <meta property="article:published_time" content="2020-02-24T09:21:02.000Z">
-<meta property="article:modified_time" content="2020-03-09T09:24:31.670Z">
+<meta property="article:modified_time" content="2020-03-17T03:43:55.525Z">
 <meta property="article:author" content="JagnDC">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -126,7 +126,7 @@
 
 
 
-  <link rel="canonical" href="http://www.github.com/JagnDC/blog/2020/02/24/Redis初识/"/>
+  <link rel="canonical" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/02/24/Redis初识/"/>
 
 
 
@@ -313,7 +313,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.github.com/JagnDC/blog/2020/02/24/Redis%E5%88%9D%E8%AF%86/">
+    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/02/24/Redis%E5%88%9D%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JagnDC">
@@ -385,7 +385,7 @@
       
 
       
-        <h1 id="初识Redis"><a href="#初识Redis" class="headerlink" title="初识Redis"></a>初识Redis</h1><p>Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。</p>
+        <p>Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。</p>
 <h3 id="我们可以从缓存开始熟悉"><a href="#我们可以从缓存开始熟悉" class="headerlink" title="我们可以从缓存开始熟悉"></a>我们可以从缓存开始熟悉</h3><p>实现一个缓存</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// get value from cache</span></span><br><span class="line"><span class="keyword">String</span> value = <span class="built_in">map</span>.<span class="built_in">get</span>(<span class="string">"someKey"</span>);</span><br><span class="line"><span class="keyword">if</span>(null == value) &#123;</span><br><span class="line"> <span class="comment">// get value from DataBase</span></span><br><span class="line"> value = queryValueFromDB(<span class="string">"someKey"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -485,8 +485,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/02/15/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2020/02/10/Spark%E5%AE%89%E8%A3%85/" rel="next" title="Spark安装">
+                <i class="fa fa-chevron-left"></i> Spark安装
               </a>
             
           </div>
@@ -574,7 +574,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -587,7 +587,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -620,7 +620,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#初识Redis"><span class="nav-number">1.</span> <span class="nav-text">初识Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#我们可以从缓存开始熟悉"><span class="nav-number">1.0.1.</span> <span class="nav-text">我们可以从缓存开始熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-S架构"><span class="nav-number">1.0.2.</span> <span class="nav-text">C&#x2F;S架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群"><span class="nav-number">1.0.3.</span> <span class="nav-text">集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主从复制"><span class="nav-number">1.0.4.</span> <span class="nav-text">主从复制</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#我们可以从缓存开始熟悉"><span class="nav-number">1.</span> <span class="nav-text">我们可以从缓存开始熟悉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-S架构"><span class="nav-number">2.</span> <span class="nav-text">C&#x2F;S架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群"><span class="nav-number">3.</span> <span class="nav-text">集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主从复制"><span class="nav-number">4.</span> <span class="nav-text">主从复制</span></a></li></ol></div>
             
 
           </div>

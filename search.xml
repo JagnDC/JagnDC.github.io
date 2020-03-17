@@ -1,6 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spark(三) · 运行模式</title>
+    <url>/2020/03/13/Spark%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<ol>
+<li><p>Local模式：</p>
+<p> 适用于开发和本地测试环境</p>
+<p> pyspark/spark-submit</p>
+<p> –master</p>
+<p> –name</p>
+<p> –py-files</p>
+<pre><code>./spark-submit --master local[*] --name spark-local /xxx/xx.py (argv)</code></pre></li>
+<li><p>standalone</p>
+<p> spark自带的部署方法</p>
+<p> hdfs : NameNode DataNode<br> yarn : ResourceManager NodeManager</p>
+<p> master, worker</p>
+<pre><code>$SPARK_HOME/conf/slaves
+dxy409
+...
+如果有多台机器则在后面添加名字</code></pre><p> 启动spark集群</p>
+<pre><code>$SPARK_HOME/sbin/start-all.sh
+ps:在spark-env.sh中添加JAVA_HOME</code></pre><p> 检测：</p>
+<p> jps:Master和Worker进程</p>
+<p> webui:8080</p>
+<pre><code>./spark-submit --master spark://192.168.0.7:7077 --name spark-standalone /xxx/xx.py (argv)</code></pre><p> 如果使用standalone模式，且节点数大于1，如果使用本地文件，必须保证每个节点都有文件</p>
+</li>
+</ol>
+<ol start="3">
+<li><p>yarn</p>
+<p> 生产环境中70%使用的方法</p>
+<p> spark作业客户端，提交作业到yarn上执行</p>
+<p> yarn vs standalone</p>
+<p> yarn:只需要一个节点即可提交作业，不需要spark集群，不需要启动master和worker</p>
+<p> standalone:spark集群的每个节点都需要部署spark，需要启动spark集群，需要master和worker</p>
+<pre><code>./spark-submit --master yarn --deploy mode --name spark-yarn /xxx/xx.py (argv)</code></pre><p> When running with master ‘yarn’ either HADOOP_CONF_DIR or YARN_CONF_DIR must be set in the environment.</p>
+<ul>
+<li><p>在spark-env.sh添加 HADOOP_CONF_DIR={hadoop的位置}</p>
+<p>yarn支持client和cluster模式：区别在于driver运行在哪里</p>
+</li>
+<li><p>cluster：提交完作业就可以断开了，因为driver运行在application master上的</p>
+</li>
+<li><p>client：提交作业的进程不能禁止，否则driver就挂了</p>
+<p>pyspark/spark-shell/spark-sql：交互式运行程序 client</p>
+<p>查看已经完成运行的yarn的日志：</p>
+<p>  yarn logs -applicationId <applicationId></applicationId></p>
+</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>Spark</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SQL (一) · 基础学习</title>
     <url>/2020/03/08/SQL%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在我们的日常工作中，使用的是类似 MySQL、Oracle 这种的数据库管理系统，实际上这些数据库管理系统都遵循 SQL 语言，这就意味着，我们在使用这些数据库的时候，都是通过 SQL 语言与它们打交道。所以对于从事编程或者互联网行业的人来说，最具有中台能力的语言便是 SQL 语言。自从 SQL 加入了 TIOBE 编程语言排行榜，就一直保持在 Top 10。</p>
@@ -645,7 +698,7 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 <li>tar解压命令</li>
 <li>环境的配置</li>
 </ul>
-<h2 id="PySpark-Spark-Core核心RDD"><a href="#PySpark-Spark-Core核心RDD" class="headerlink" title="PySpark-Spark Core核心RDD"></a>PySpark-Spark Core核心RDD</h2><h3 id="RDD"><a href="#RDD" class="headerlink" title="RDD"></a>RDD</h3><h4 id="什么是RDD"><a href="#什么是RDD" class="headerlink" title="什么是RDD"></a>什么是RDD</h4><p>源码： <a href="https://github.com/apache/spark" target="_blank" rel="noopener">https://github.com/apache/spark</a></p>
+<h3 id="RDD"><a href="#RDD" class="headerlink" title="RDD"></a>RDD</h3><h4 id="什么是RDD"><a href="#什么是RDD" class="headerlink" title="什么是RDD"></a>什么是RDD</h4><p>源码： <a href="https://github.com/apache/spark" target="_blank" rel="noopener">https://github.com/apache/spark</a></p>
 <p>1) RDD是一个抽象类<br>2) 带泛型，可以支持多种类型</p>
 <p>RDD: Resilient Distributed Dataset 弹性 分布式 数据集</p>
 <p>Represents an<br>immutable 不可变<br>partitioned collection of elements 分区<br>that can be operated on in parallel. 并行计算</p>
@@ -700,7 +753,7 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
   <entry>
     <title>初识Redis</title>
     <url>/2020/02/24/Redis%E5%88%9D%E8%AF%86/</url>
-    <content><![CDATA[<h1 id="初识Redis"><a href="#初识Redis" class="headerlink" title="初识Redis"></a>初识Redis</h1><p>Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。</p>
+    <content><![CDATA[<p>Redis是一个开源的、基于内存的数据结构存储器，可以用作数据库、缓存和消息中间件。</p>
 <h3 id="我们可以从缓存开始熟悉"><a href="#我们可以从缓存开始熟悉" class="headerlink" title="我们可以从缓存开始熟悉"></a>我们可以从缓存开始熟悉</h3><p>实现一个缓存</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// get value from cache</span></span><br><span class="line"><span class="keyword">String</span> value = <span class="built_in">map</span>.<span class="built_in">get</span>(<span class="string">"someKey"</span>);</span><br><span class="line"><span class="keyword">if</span>(null == value) &#123;</span><br><span class="line"> <span class="comment">// get value from DataBase</span></span><br><span class="line"> value = queryValueFromDB(<span class="string">"someKey"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -776,21 +829,180 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
       </tags>
   </entry>
   <entry>
+    <title>Spark安装</title>
+    <url>/2020/02/10/Spark%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="下载Spark"><a href="#下载Spark" class="headerlink" title="下载Spark"></a>下载Spark</h2><p>根据地址选择下载版本</p>
+<p><a href="http://spark.apache.org/downloads.html" target="_blank" rel="noopener">http://spark.apache.org/downloads.html</a></p>
+<img src="/2020/02/10/Spark%E5%AE%89%E8%A3%85/sparkdownload.png" class title="spark下载版本">
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ tar -zvxf spark-3.0.0-bin-hadoop2.7.tgz</span><br><span class="line"><span class="comment"># 配置环境变量</span></span><br><span class="line">$ sudo gedit ~/.bashrc</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/lib/jvm/jdk1.8.0_102</span><br><span class="line"><span class="built_in">export</span> SPARK_HOME=/opt/spark-3.0.0-bin-hadoop2.7</span><br><span class="line"><span class="built_in">export</span> PYSPARK_DRIVER_PYTHON=/home/dc/anaconda3/bin/python</span><br><span class="line"><span class="built_in">export</span> PYSPARK_PYTHON=/home/dc/anaconda3/bin/python</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$SPARK_HOME</span>/bin</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装pyspark"><a href="#安装pyspark" class="headerlink" title="安装pyspark"></a>安装pyspark</h2><h3 id="本地安装"><a href="#本地安装" class="headerlink" title="本地安装"></a>本地安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /home/ubuntu/spark-2.4.0-bin-hadoop2.7/python</span><br><span class="line">$ python3 setup.py install</span><br></pre></td></tr></table></figure>
+
+<h3 id="pip安装"><a href="#pip安装" class="headerlink" title="pip安装"></a>pip安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ pip3 install pyspark</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line"></span><br><span class="line">    conf = SparkConf()</span><br><span class="line">    sc = SparkContext(conf = conf)</span><br><span class="line">    </span><br><span class="line">    data = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>]</span><br><span class="line">    data = sc.parallelize(data)</span><br><span class="line">    rdd = data.map(<span class="keyword">lambda</span> x: x+<span class="number">1</span>)</span><br><span class="line">    print(rdd.collect())</span><br><span class="line"></span><br><span class="line">    sc.stop()</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[2, 3, 4, 5, 6, 7, 8]</span><br></pre></td></tr></table></figure>
+
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><ol>
+<li>PYTHONPATH问题</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">py4j.protocol.Py4JError: org.apache.spark.api.python.PythonUtils.getEncryptionEnabled does not exist in the JVM</span><br></pre></td></tr></table></figure>
+
+<p>解决方法</p>
+<pre><code>sudo gedit .bashrc</code></pre><p>Please add $SPARK_HOME/python/build to PYTHONPATH:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> SPARK_HOME=/opt/spark-3.0.0-bin-hadoop2.7</span><br><span class="line"><span class="built_in">export</span> PYTHONPATH=<span class="variable">$SPARK_HOME</span>/python:<span class="variable">$SPARK_HOME</span>/python/build:<span class="variable">$PYTHONPATH</span></span><br></pre></td></tr></table></figure>
+
+<pre><code>source .bashrc</code></pre><p>或者在 import pyspark 之前：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>教程</tag>
+        <tag>Spark</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hadoop安装</title>
+    <url>/2020/02/09/Hadoop%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h2><p>安装过java，确认可用</p>
+<pre><code>java -version</code></pre><h2 id="创建haddop用户组和用户"><a href="#创建haddop用户组和用户" class="headerlink" title="创建haddop用户组和用户"></a>创建haddop用户组和用户</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo addgroup hadoop</span><br><span class="line">sudo adduser --ingroup hadoop hduser</span><br><span class="line">sudo adduser hduser sudo </span><br><span class="line">su hduser</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装和配置ssh"><a href="#安装和配置ssh" class="headerlink" title="安装和配置ssh"></a>安装和配置ssh</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install openssh-server</span><br></pre></td></tr></table></figure>
+
+<p>切换到hduser用户，执行如下命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t rsa -P <span class="string">''</span></span><br><span class="line">cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<h2 id="下载hadoop"><a href="#下载hadoop" class="headerlink" title="下载hadoop"></a>下载hadoop</h2><p><a href="http://mirror.bit.edu.cn/apache/hadoop/common" target="_blank" rel="noopener">http://mirror.bit.edu.cn/apache/hadoop/common</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo tar -zxvf hadoop-2.7.7.tar.gz -C /opt</span><br><span class="line"><span class="built_in">cd</span> /opt</span><br><span class="line">sudo mv hadoop-2.7.7 hadoop</span><br><span class="line">sudo chown -R hduser:hadoop hadoop</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置hadoop环境"><a href="#配置hadoop环境" class="headerlink" title="配置hadoop环境"></a>配置hadoop环境</h2><p>编辑以下文件</p>
+<ul>
+<li><p>.bashrc</p>
+<p>  sudo gedit ~/.bashrc</p>
+</li>
+</ul>
+<p>将下面的内容复制到.bashrc中</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#Hadoop variables</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64</span><br><span class="line"><span class="built_in">export</span> HADOOP_INSTALL=/opt/hadoop</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_INSTALL</span>/bin</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_INSTALL</span>/sbin</span><br><span class="line"><span class="built_in">export</span> HADOOP_MAPRED_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HDFS_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">export</span> YARN_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>hadoop-env.sh</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/hadoop/etc/hadoop &amp;&amp; sudo gedit hadoop-env.sh</span><br></pre></td></tr></table></figure>
+
+<p>将下面的三行加入到hadoop-env.sh中，注释原来的 “export JAVA_HOME”那行</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64</span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_LIB_NATIVE_DIR=<span class="string">"/opt/hadoop/lib/native/"</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_OPTS=<span class="string">"<span class="variable">$HADOOP_OPTS</span> -Djava.library.path=/opt/hadoop/lib/"</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="配置hadoop"><a href="#配置hadoop" class="headerlink" title="配置hadoop"></a>配置hadoop</h2><pre><code>cd /usr/local/hadoop/etc/hadoop</code></pre><p>编辑以下文件</p>
+<ol>
+<li><p>core-site.xml</p>
+<p> 将下面的内容复制到 <configuration> 标签内</configuration></p>
+ <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.default.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://localhost:9000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>yarn-site.xml</p>
+<p> 将下面的内容复制到 <configuration> 标签内</configuration></p>
+ <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services.mapreduce.shuffle.class<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.mapred.ShuffleHandler<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.pmem-check-enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.vmem-check-enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>mapred-site.xml</p>
+<pre><code>mv mapred-site.xml.template mapred-site.xml</code></pre><p> 将下面的内容复制到 <configuration> 标签内</configuration></p>
+ <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>hdfs-site.xml</p>
+<pre><code>mkdir -p ~/mydata/hdfs/namenode &amp;&amp; mkdir -p ~/mydata/hdfs/datanode</code></pre><p> 将下面的内容复制到 <configuration> 标签内</configuration></p>
+ <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span> </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:/home/hduser/mydata/hdfs/namenode<span class="tag">&lt;/<span class="name">value</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span> </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:/home/hduser/mydata/hdfs/datanode<span class="tag">&lt;/<span class="name">value</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="启动并查看服务"><a href="#启动并查看服务" class="headerlink" title="启动并查看服务"></a>启动并查看服务</h2><ol>
+<li><p>格式化 namenode</p>
+<p> 第一次启动hadoop服务之前，必须执行格式化namenode</p>
+<pre><code>hdfs namenode -format</code></pre></li>
+<li><p>启动服务</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">start-dfs.sh &amp;&amp; start-yarn.sh</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">start-all.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>jps查看服务</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">jps</span><br><span class="line"><span class="comment"># 最好用sudo</span></span><br><span class="line">sudo jps</span><br></pre></td></tr></table></figure>
+
+<p> 顺利的话可以看的：</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">23313 DataNode</span><br><span class="line">10421 Master</span><br><span class="line">23749 ResourceManager</span><br><span class="line">23559 SecondaryNameNode</span><br><span class="line">23112 NameNode</span><br><span class="line">24104 NodeManager</span><br><span class="line">10605 Worker</span><br><span class="line">6942 Jps</span><br></pre></td></tr></table></figure></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>Hadoop</tag>
+        <tag>教程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Ubuntu Java安装</title>
+    <url>/2020/02/08/Java%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="安装jdk"><a href="#安装jdk" class="headerlink" title="安装jdk"></a>安装jdk</h2><h3 id="orcal-Java-Jdk"><a href="#orcal-Java-Jdk" class="headerlink" title="orcal Java Jdk"></a>orcal Java Jdk</h3><h4 id="官网下载"><a href="#官网下载" class="headerlink" title="官网下载"></a>官网下载</h4><ol>
+<li><p>官网下载orcal Java Jdk</p>
+<p> 下载链接  </p>
+<p> <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a></p>
+<p> 可以根据自己的系统进行下载</p>
+</li>
+<li><p>进行解压</p>
+<pre><code>sudo tar -zxvf jdk-linux-x64.tar.gz </code></pre><p> 解压到当前目录下，解压后可以把解压文件移动到自己想要放的目录下，使用mv命令 sudo mv jdk1.8.0_171 /usr/lib/jvm</p>
+</li>
+<li><p>进行配置</p>
+<p> 使用全局设置方法，它是所有用户的共用的环境变量</p>
+<p> 命令如下：</p>
+<pre><code>$sudo gedit ~/.bashrc</code></pre><p> 然后把如下命令复制到最底部</p>
+<pre><code>export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_25  
+export JRE_HOME=${JAVA_HOME}/jre  
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib  
+export PATH=${JAVA_HOME}/bin:$PATH
+export JAVA_HOME=后面要填写自己解压后的jdk的路径</code></pre></li>
+<li><p>生效~/.bashrc文件</p>
+<p> 命令如下：</p>
+<pre><code>$sudo source ~/.bashrc</code></pre></li>
+<li><p>测试是否安装成功</p>
+<p> 查看版本号是否改变</p>
+<pre><code>java -version </code></pre></li>
+</ol>
+<h4 id="在线安装"><a href="#在线安装" class="headerlink" title="在线安装"></a>在线安装</h4><ol>
+<li><p>安装依赖包：</p>
+<pre><code>sudo apt-get install python-software-properties</code></pre></li>
+<li><p>添加仓库源：</p>
+<pre><code>sudo add-apt-repository ppa:webupd8team/java</code></pre></li>
+<li><p>更新软件包列表：</p>
+<pre><code>sudo apt-get update</code></pre></li>
+<li><p>安装java JDK：</p>
+<pre><code>sudo apt-get install oracle-java8-installer</code></pre></li>
+</ol>
+<h3 id="openjdk"><a href="#openjdk" class="headerlink" title="openjdk"></a>openjdk</h3><ol>
+<li><p>更新软件包列表：</p>
+<pre><code>sudo apt-get update</code></pre></li>
+<li><p>安装openjdk-8-jdk：</p>
+<pre><code>sudo apt-get install openjdk-8-jdk</code></pre></li>
+<li><p>查看java版本，看看是否安装成功：</p>
+<pre><code>java -version</code></pre></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>教程</tag>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hello World</title>
-    <url>/2020/02/15/hello-world/</url>
+    <url>/2020/02/01/hello-world/</url>
     <content><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br><span class="line">$ hexo n <span class="string">"New Post"</span> <span class="comment"># 等同</span></span><br></pre></td></tr></table></figure>
 
 <p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br><span class="line">$ hexo s <span class="comment"># 等同</span></span><br></pre></td></tr></table></figure>
 
 <p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br><span class="line">$ hexo g <span class="comment"># 等同</span></span><br></pre></td></tr></table></figure>
 
 <p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br><span class="line">$ hexo d <span class="comment"># 等同</span></span><br></pre></td></tr></table></figure>
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<h3 id="Multi-config"><a href="#Multi-config" class="headerlink" title="Multi config"></a>Multi config</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo avgr --config .\coding_config.yml</span><br></pre></td></tr></table></figure>
+
+<p>根据不同的config文件生成不同的网页</p>
 ]]></content>
       <tags>
         <tag>hexo</tag>

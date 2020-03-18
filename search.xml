@@ -59,7 +59,84 @@
 <p>一个stage对应一到多个task</p>
 <p>task运行在executor里面</p>
 <p>executors跑在worker上面的</p>
-<h2 id="Spark-运行架构"><a href="#Spark-运行架构" class="headerlink" title="Spark 运行架构"></a>Spark 运行架构</h2><h2 id="Spark和Hadoop的概念区分"><a href="#Spark和Hadoop的概念区分" class="headerlink" title="Spark和Hadoop的概念区分"></a>Spark和Hadoop的概念区分</h2><h2 id="Spark-Cache详解"><a href="#Spark-Cache详解" class="headerlink" title="Spark Cache详解"></a>Spark Cache详解</h2><h2 id="Spark-Lineage详解"><a href="#Spark-Lineage详解" class="headerlink" title="Spark Lineage详解"></a>Spark Lineage详解</h2><h2 id="Spark-Dependency详解"><a href="#Spark-Dependency详解" class="headerlink" title="Spark Dependency详解"></a>Spark Dependency详解</h2>]]></content>
+<h2 id="Spark-运行架构"><a href="#Spark-运行架构" class="headerlink" title="Spark 运行架构"></a>Spark 运行架构</h2><img src="/2020/03/17/Spark%E6%A0%B8%E5%BF%83%E8%BF%9B%E9%98%B6/components.png" class title="components">
+
+<p>Spark applications run as independent sets of processes on a cluster, coordinated by the SparkContext object in your main program (called the driver program).</p>
+<p>Spark应用程序在群集上作为独立的进程集运行，由主程序（称为驱动程序）中的SparkContext对象协调。</p>
+<p>Specifically, to run on a cluster, the SparkContext can connect to several types of cluster managers (either Spark’s own standalone cluster manager, Mesos or YARN), which allocate resources across applications. Once connected, Spark acquires executors on nodes in the cluster, which are processes that run computations and store data for your application. Next, it sends your application code (defined by JAR or Python files passed to SparkContext) to the executors. Finally, SparkContext sends tasks to the executors to run.</p>
+<p>具体来说，要在集群上运行，SparkContext可以连接到几种类型的集群管理器（Spark自己的独立集群管理器Mesos或YARN），它们可以在应用程序之间分配资源。连接后，Spark会在集群中的节点上获取执行程序，这些节点是运行计算并为您的应用程序存储数据的进程。接下来，它将应用程序代码（由传递给SparkContext的JAR或Python文件定义）发送给执行者。最后，SparkContext将任务发送给执行程序以运行。</p>
+<ol>
+<li><p>Each application gets its own executor processes, which stay up for the duration of the whole application and run tasks in multiple threads. This has the benefit of isolating applications from each other, on both the scheduling side (each driver schedules its own tasks) and executor side (tasks from different applications run in different JVMs). However, it also means that data cannot be shared across different Spark applications (instances of SparkContext) without writing it to an external storage system.</p>
+<p> 线程是独立的，应用程序之间数据不共享，除非写入外部存储管理系统中</p>
+</li>
+<li><p>Spark is agnostic to the underlying cluster manager. As long as it can acquire executor processes, and these communicate with each other, it is relatively easy to run it even on a cluster manager that also supports other applications (e.g. Mesos/YARN).</p>
+<p> 写spark应用程序的时候不需要关注程序运行在哪里，只需要和executor进行通讯</p>
+</li>
+<li><p>The driver program must listen for and accept incoming connections from its executors throughout its lifetime (e.g., see spark.driver.port in the network config section). As such, the driver program must be network addressable from the worker nodes.</p>
+<p> driver必须要和executor进行通讯，连接是双向的，发送作业，接受心跳信息</p>
+</li>
+<li><p>Because the driver schedules tasks on the cluster, it should be run close to the worker nodes, preferably on the same local area network. If you’d like to send requests to the cluster remotely, it’s better to open an RPC to the driver and have it submit operations from nearby than to run a driver far away from the worker nodes.</p>
+<p> driver要尽可能近的靠近worker nodes，最好是local，远程的话最好使用RPC通讯</p>
+</li>
+</ol>
+<h2 id="Spark和Hadoop的概念区分"><a href="#Spark和Hadoop的概念区分" class="headerlink" title="Spark和Hadoop的概念区分"></a>Spark和Hadoop的概念区分</h2><p>Hadoop</p>
+<ol>
+<li>一个MR程序 = 一个Job</li>
+<li>一个Job = 1-n个task(Map/Reduce)</li>
+<li>一个task对应于一个进程</li>
+<li>task运行时相当于开启了进程，执行完毕后销毁进程，对于多个task来说，开销是比较大的(即使能够JVM共享)</li>
+</ol>
+<p>Spark</p>
+<ol>
+<li>Application = Driver (main方法中创建SparkContext + Executors)</li>
+<li>一个Application = 0-n个Job</li>
+<li>一个Job = 一个Action</li>
+<li>一个Job = 1-n个Stage</li>
+<li>一个Stage = 1-n个Task</li>
+<li>一个Task对应一个线程，多个Task可以以并行的方式运行在一个Executor进程中</li>
+</ol>
+<h2 id="Spark-Cache详解"><a href="#Spark-Cache详解" class="headerlink" title="Spark Cache详解"></a>Spark Cache详解</h2><p>rdd.cache() : StorageLevel</p>
+<p>cache:lazy 只有遇到action才会提交运行</p>
+<p>不缓存的场景中，有多少次action就会读取多少次disk</p>
+<p>如果一个RDD在后续的计算中会使用到，建议使用cache缓存</p>
+<p>cache底层调用persist方法，传入的参数是：StorageLevel.MEMORY_ONLY</p>
+<p>cache = persist</p>
+<p>unpersist：立即执行</p>
+<p><strong>如何选择</strong></p>
+<p>Which Storage Level to Choose?<br>Spark’s storage levels are meant to provide different trade-offs between memory usage and CPU efficiency. We recommend going through the following process to select one:</p>
+<ol>
+<li><p>If your RDDs fit comfortably with the default storage level (MEMORY_ONLY), leave them that way. This is the most CPU-efficient option, allowing operations on the RDDs to run as fast as possible.</p>
+</li>
+<li><p>If not, try using MEMORY_ONLY_SER and selecting a fast serialization library to make the objects much more space-efficient, but still reasonably fast to access. (Java and Scala)</p>
+</li>
+<li><p>Don’t spill to disk unless the functions that computed your datasets are expensive, or they filter a large amount of the data. Otherwise, recomputing a partition may be as fast as reading it from disk.</p>
+</li>
+<li><p>Use the replicated storage levels if you want fast fault recovery (e.g. if using Spark to serve requests from a web application). All the storage levels provide full fault tolerance by recomputing lost data, but the replicated ones let you continue running tasks on the RDD without waiting to recompute a lost partition.</p>
+</li>
+</ol>
+<p>Spark的存储级别旨在在内存使用量和CPU效率之间提供不同的权衡。我们建议通过以下过程选择一个：如果您的RDD适合默认存储级别</p>
+<ol>
+<li><p>（MEMORY_ONLY），请保持这种状态。这是CPU效率最高的选项，允许RDD上的操作尽可能快地运行。</p>
+</li>
+<li><p>如果不是，请尝试使用MEMORY_ONLY_SER并选择一个快速的序列化库，以使对象的空间效率更高，但访问速度仍然相当快。（Java和Scala）</p>
+</li>
+<li><p>除非用于计算数据集的函数很昂贵，否则它们会过滤掉大量数据。否则，重新计算分区可能与从磁盘读取分区一样快。</p>
+</li>
+<li><p>如果要快速恢复故障（例如，如果使用Spark来处理来自Web应用程序的请求），请使用副本存储。所有存储级别都通过重新计算丢失的数据来提供完全的容错能力，但是副本存储使您可以继续在RDD上运行任务，而不必等待重新计算丢失的分区。</p>
+</li>
+</ol>
+<h2 id="Spark-Lineage详解"><a href="#Spark-Lineage详解" class="headerlink" title="Spark Lineage详解"></a>Spark Lineage详解</h2><p>RDD之间的依赖关系就是Lineage</p>
+<p>当计算过程中RDD的其中某个partition出现问题就可以根据Lineage从上个RDD中计算出来</p>
+<h2 id="Spark-Dependency详解"><a href="#Spark-Dependency详解" class="headerlink" title="Spark Dependency详解"></a>Spark Dependency详解</h2><ol>
+<li><p>窄依赖 Narrow (pipeline-able)</p>
+<p> 一个父RDD的partition最多被子RDD的某个partition使用一次</p>
+</li>
+<li><p>宽依赖 Wide (shuffle)</p>
+<p> 一个父RDD的partition会被子RDD的partition使用多次，有shuffle</p>
+</li>
+</ol>
+<p>n个shuffle会对应n+1个stage</p>
+]]></content>
       <tags>
         <tag>Spark</tag>
       </tags>

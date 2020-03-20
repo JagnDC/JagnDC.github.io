@@ -137,6 +137,9 @@
 </ol>
 <p>n个shuffle会对应n+1个stage</p>
 ]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
       <tags>
         <tag>Spark</tag>
       </tags>
@@ -190,6 +193,9 @@ ps:在spark-env.sh中添加JAVA_HOME</code></pre><p> 检测：</p>
 </li>
 </ol>
 ]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
       <tags>
         <tag>Spark</tag>
       </tags>
@@ -690,6 +696,9 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 </li>
 </ul>
 ]]></content>
+      <categories>
+        <category>SQL系列</category>
+      </categories>
       <tags>
         <tag>SQL</tag>
       </tags>
@@ -816,6 +825,9 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 </li>
 </ol>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> findspark</span><br><span class="line">findspark.init()</span><br><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) != <span class="number">2</span>:</span><br><span class="line">        print(<span class="string">'Usage: wordcount &lt;input&gt;&lt;output&gt;'</span>, file=sys.stderr)</span><br><span class="line">        sys.exit(<span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line">    conf = SparkConf()</span><br><span class="line">    sc = SparkContext(conf = conf)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">topn</span><span class="params">()</span>:</span></span><br><span class="line">        counts = sc.textFile(sys.argv[<span class="number">1</span>])\</span><br><span class="line">            .flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">' '</span>))\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))\</span><br><span class="line">            .reduceByKey(<span class="keyword">lambda</span> a, b: a+b)\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x:(x[<span class="number">1</span>], x[<span class="number">0</span>]))\</span><br><span class="line">            .sortByKey(<span class="literal">False</span>)\</span><br><span class="line">            .map(<span class="keyword">lambda</span> x:(x[<span class="number">1</span>], x[<span class="number">0</span>])).take(<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(word, count) <span class="keyword">in</span> counts:</span><br><span class="line">            print(<span class="string">'%s : %i'</span>%(word, count))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">average</span><span class="params">()</span>:</span></span><br><span class="line">        agedata = sc.textFile(sys.argv[<span class="number">1</span>]).map(<span class="keyword">lambda</span> x:x.split(<span class="string">' '</span>)[<span class="number">1</span>])</span><br><span class="line">        reducedata = agedata.map(<span class="keyword">lambda</span> age:int(age)).reduce(<span class="keyword">lambda</span> a,b:a+b)</span><br><span class="line">        countdata = agedata.count()</span><br><span class="line">        avgdata = reducedata/countdata</span><br><span class="line"></span><br><span class="line">        print(agedata.collect())</span><br><span class="line">        print(reducedata)</span><br><span class="line">        print(countdata)</span><br><span class="line">        print(avgdata)</span><br><span class="line"></span><br><span class="line">    average()</span><br><span class="line"></span><br><span class="line">    sc.stop()</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
       <tags>
         <tag>Spark</tag>
       </tags>
@@ -887,6 +899,9 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 <p>4) 使用local进行本地测试</p>
 <p>提交pyspark应用程序</p>
 <pre><code>spark-submit --master local[2] --name sparktest /home/***/*.py</code></pre>]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
       <tags>
         <tag>Spark</tag>
       </tags>
@@ -965,6 +980,9 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 <p>参考知乎<a href="https://zhuanlan.zhihu.com/p/37055648" target="_blank" rel="noopener">Redis简明教程</a></p>
 </blockquote>
 ]]></content>
+      <categories>
+        <category>Redis系列</category>
+      </categories>
       <tags>
         <tag>Redis</tag>
       </tags>
@@ -1009,6 +1027,9 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 </li>
 </ol>
 ]]></content>
+      <categories>
+        <category>安装教程</category>
+      </categories>
       <tags>
         <tag>教程</tag>
         <tag>Spark</tag>
@@ -1101,6 +1122,9 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
 <p>每次运行结束Hadoop后，都应该关闭Hadoop</p>
 <pre><code>stop-dfs.sh</code></pre><p>下次想重新运行Hadoop，不用再格式化namenode,直接启动Hadoop即可</p>
 <pre><code>start-dfs.sh</code></pre>]]></content>
+      <categories>
+        <category>安装教程</category>
+      </categories>
       <tags>
         <tag>Hadoop</tag>
         <tag>教程</tag>
@@ -1153,6 +1177,9 @@ export JAVA_HOME=后面要填写自己解压后的jdk的路径</code></pre></li>
 <pre><code>java -version</code></pre></li>
 </ol>
 ]]></content>
+      <categories>
+        <category>安装教程</category>
+      </categories>
       <tags>
         <tag>教程</tag>
         <tag>Java</tag>
@@ -1178,6 +1205,9 @@ export JAVA_HOME=后面要填写自己解压后的jdk的路径</code></pre></li>
 
 <p>根据不同的config文件生成不同的网页</p>
 ]]></content>
+      <categories>
+        <category>安装教程</category>
+      </categories>
       <tags>
         <tag>hexo</tag>
       </tags>

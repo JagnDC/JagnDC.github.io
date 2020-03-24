@@ -312,7 +312,7 @@ $SPARK_HOME/conf/spark-env.sh
 <p>  cache,propagate</p>
 </li>
 </ul>
-<img src="/2020/03/21/Spark%E4%BC%98%E5%8C%96/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.jpg" class title="内存管理">
+<img data-src="/2020/03/21/Spark%E4%BC%98%E5%8C%96/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.jpg" class title="内存管理">
 
 <h2 id="广播变量"><a href="#广播变量" class="headerlink" title="广播变量"></a>广播变量</h2><p>Using the broadcast functionality available in SparkContext can greatly reduce the size of each serialized task, and the cost of launching a job over a cluster. If your tasks use any large object from the driver program inside of them (e.g. a static lookup table), consider turning it into a broadcast variable. Spark prints the serialized size of each task on the master, so you can look at that to decide whether your tasks are too large; in general tasks larger than about 20 KB are probably worth optimizing.</p>
 <p>大幅降低task的大小，每个机器一个副本。通常数据大于20KB就值得进行优化</p>

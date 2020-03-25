@@ -1,8 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spark(七) · SparkStreaming核心</title>
+    <url>/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/</url>
+    <content><![CDATA[<p>Spark Streaming是<strong>核心Spark API的扩展</strong>，可实现实时数据流的<strong>可伸缩</strong>，<strong>高吞吐量</strong>，<strong>容错流处理</strong>。可以从许多数据源（例如Kafka，Flume，Kinesis或TCP套接字）中提取数据，并可以使用以高级功能（如map，reduce，join和window）表示的复杂算法来处理数据。最后，可以将处理后的数据推送到文件系统，数据库和实时仪表板。实际上，可以在数据流上应用Spark的机器学习和图形处理算法。</p>
+<img data-src="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/streaming-arch.png" class title="streaming-arch">
+
+<p>常用实时流处理框架对比：</p>
+<ul>
+<li>Storm：真正的实时流处理 Tuple Java</li>
+<li>Spark Streaming：并不是真正的实时流处理，而是一个mini batch操作<br>  Scala、Java、Python<br>  Spark一栈式解决问题</li>
+<li>Flink：真正的实时流处理</li>
+<li>Kafka Stream：用的不多</li>
+</ul>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Spark Streaming receives live input data streams and divides the data into batches, which are then processed by the Spark engine to generate the final stream of results in batches.</p>
+<p>Spark Streaming接收实时输入数据流，并将数据分成批次，然后由Spark引擎进行处理，以生成批次的最终结果流。</p>
+<img data-src="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/streaming-flow.png" class title="streaming-flow">
+
+<ul>
+<li><p>Spark Core的核心抽象：RDD</p>
+</li>
+<li><p>Spark Streaming的核心抽象：DStream</p>
+</li>
+</ul>
+<p>A DStream is represented as a sequence of RDDs.</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.streaming <span class="keyword">import</span> StreamingContext</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a local StreamingContext with two working thread and batch interval of 1 second</span></span><br><span class="line">sc = SparkContext(<span class="string">"local[2]"</span>, <span class="string">"NetworkWordCount"</span>)</span><br><span class="line">ssc = StreamingContext(sc, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a DStream that will connect to hostname:port, like localhost:9999</span></span><br><span class="line">lines = ssc.socketTextStream(<span class="string">"localhost"</span>, <span class="number">9999</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Split each line into words</span></span><br><span class="line">words = lines.flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">" "</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Count each word in each batch</span></span><br><span class="line">pairs = words.map(<span class="keyword">lambda</span> word: (word, <span class="number">1</span>))</span><br><span class="line">wordCounts = pairs.reduceByKey(<span class="keyword">lambda</span> x, y: x + y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Print the first ten elements of each RDD generated in this DStream to the console</span></span><br><span class="line">wordCounts.pprint()</span><br><span class="line"></span><br><span class="line">ssc.start()             <span class="comment"># Start the computation</span></span><br><span class="line">ssc.awaitTermination()  <span class="comment"># Wait for the computation to terminate</span></span><br></pre></td></tr></table></figure>
+
+<p>使用Netcat进行示例数据流</p>
+<pre><code>$ nc -lk 9999</code></pre><h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><p>To initialize a Spark Streaming program, a StreamingContext object has to be created which is the main entry point of all Spark Streaming functionality.</p>
+<p>要初始化Spark Streaming程序，必须创建StreamingContext对象，该对象是所有Spark Streaming功能的主要入口点。</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.streaming <span class="keyword">import</span> StreamingContext</span><br><span class="line"></span><br><span class="line">sc = SparkContext(master, appName)</span><br><span class="line">ssc = StreamingContext(sc, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>After a context is defined, you have to do the following.</p>
+<ol>
+<li>Define the input sources by creating input DStreams.</li>
+<li>Define the streaming computations by applying transformation and output operations to DStreams.</li>
+<li>Start receiving data and processing it using streamingContext.start().</li>
+<li>Wait for the processing to be stopped (manually or due to any error) using streamingContext.awaitTermination().</li>
+<li>The processing can be manually stopped using streamingContext.stop().</li>
+</ol>
+<img data-src="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/streaming-dstream.png" class title="streaming-dstream">
+
+<img data-src="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/streaming-dstream-ops.png" class title="streaming-dstream-ops">
+
+<h2 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h2><p>监控文件系统里面的文件流动</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.streaming <span class="keyword">import</span> StreamingContext</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    sc = SparkContext(appName=<span class="string">'spark'</span>)</span><br><span class="line">    ssc = StreamingContext(sc, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">    lines = ssc.textFileStream(sys.argv[<span class="number">1</span>])</span><br><span class="line">    counts = lines.flatMap(lamba line:line.split(<span class="string">' '</span>))\</span><br><span class="line">        .map(lamba word:(word,<span class="number">1</span>)).reduceByKey(lamba a,b:a+b)</span><br><span class="line"></span><br><span class="line">    counts.pprint()</span><br><span class="line"></span><br><span class="line">    ssc.start()</span><br><span class="line">    ssc.awaitTermination()</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
+      <tags>
+        <tag>Spark</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spark(六) · SparkSQL核心</title>
+    <url>/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/</url>
+    <content><![CDATA[<p>Spark SQL是用于结构化数据处理的Spark模块。与基本的Spark RDD API不同，Spark SQL提供的接口为Spark提供了有关数据结构和正在执行的计算的更多信息。在内部，Spark SQL使用这些额外的信息来执行额外的优化。与Spark SQL交互的方法有多种，包括SQL和Dataset API。计算结果时，将使用相同的执行引擎，而与要用来表达计算的API/语言无关。这种统一意味着开发人员可以轻松地在不同的API之间来回切换，从而提供最自然的方式来表达给定的转换。</p>
+<h2 id="SparkSQL背景"><a href="#SparkSQL背景" class="headerlink" title="SparkSQL背景"></a>SparkSQL背景</h2><p>SQL: MySQL、Oracle、DB2、SQLServer</p>
+<p>数据量大 ==&gt; 大数据(Hive、Spark Core)</p>
+<p><strong>大家追求的目标是使用SQL语句来对大数据进行分析</strong></p>
+<ul>
+<li><p>举例：</p>
+<p>  person.txt ==&gt; 存放再HDFS</p>
+<pre><code>1, zhangsan, 30
+2, lisi, 31
+3, wangwu, 32</code></pre><p>  hive表：person</p>
+<pre><code>id : int 
+name : string 
+age : int</code></pre><p>  导入数据： loading</p>
+<p>  统计分析： select … form person</p>
+</li>
+</ul>
+<ul>
+<li><p>这些被统称为SQL on Hadoop</p>
+<p>  Hive/Shark/Impala/Presto/Drill</p>
+</li>
+<li><p>Hive: on MapReduce</p>
+<p>  SQL ==&gt; MapReduce ==&gt; Hadoop Cluster</p>
+</li>
+<li><p>Shark: on Spark</p>
+<p>  基于Hive源码进行改造</p>
+</li>
+<li><p>Spark SQL: on Spark (Spark社区的)</p>
+</li>
+<li><p>Hive on Spark: (Hive社区的)</p>
+</li>
+<li><p>共同点：</p>
+<p>  metastore  mysql</p>
+</li>
+</ul>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Spark SQL is Apache Spark’s module for working with structured data.(官方定义)</p>
+<ul>
+<li><p>Integrated</p>
+<p>  Seamlessly mix SQL queries with Spark programs.</p>
+<p>  Spark SQL lets you query structured data inside Spark programs, using either SQL or a familiar DataFrame API. Usable in Java, Scala, Python and R.</p>
+<p>  将SQL查询与Spark程序无缝混合。Spark SQL可让您使用SQL或熟悉的DataFrame API在Spark程序中查询结构化数据。可在Java，Scala，Python和R中使用。</p>
+  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">results = spark.sql(</span><br><span class="line"><span class="string">"SELECT * FROM people"</span>)</span><br><span class="line">names = results.map(lambda p: p.name)</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>Uniform Data Access</p>
+<p>  Connect to any data source the same way.</p>
+<p>  DataFrames and SQL provide a common way to access a variety of data sources, including Hive, Avro, Parquet, ORC, JSON, and JDBC. You can even join data across these sources.</p>
+<p>  以相同的方式连接到任何数据源。DataFrame和SQL提供了一种访问各种数据源的通用方法，包括Hive，Avro，Parquet，ORC，JSON和JDBC。甚至可以跨这些源联接数据。</p>
+  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">spark.read.json(<span class="string">"s3n://..."</span>)</span><br><span class="line">.registerTempTable(<span class="string">"json"</span>)</span><br><span class="line">results = spark.sql(</span><br><span class="line"><span class="string">""</span><span class="string">"SELECT *</span></span><br><span class="line"><span class="string">    FROM people</span></span><br><span class="line"><span class="string">    JOIN json ..."</span><span class="string">""</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Hive Integration</p>
+<p>  Run SQL or HiveQL queries on existing warehouses.</p>
+<p>  Spark SQL supports the HiveQL syntax as well as Hive SerDes and UDFs, allowing you to access existing Hive warehouses.</p>
+<p>  在现有仓库上运行SQL或HiveQL查询。Spark SQL支持HiveQL语法以及Hive SerDes和UDF，从而使您可以访问现有的Hive仓库。</p>
+  <img data-src="/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/sql-hive-arch.png" class title="sql-hive-arch">
+</li>
+<li><p>Standard Connectivity</p>
+<p>  Connect through JDBC or ODBC.</p>
+<p>  A server mode provides industry standard JDBC and ODBC connectivity for business intelligence tools.</p>
+<p>  通过JDBC或ODBC连接。服务器模式为商业智能工具提供了行业标准的JDBC和ODBC连接。</p>
+  <img data-src="/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/jdbc.png" class title="jdbc">
+
+</li>
+</ul>
+<p>Spark SQL提供的操作数据的方式</p>
+<ul>
+<li>SQL</li>
+<li>DataFrame API</li>
+<li>Dataset API</li>
+</ul>
+<p>一个用于处理结构化数据的Spark组件，强调的是“结构化数据”，而非“SQL”</p>
+<p>Spark RDD VS MapReduce</p>
+<p>Pandas： one machine ==&gt; DataFrame</p>
+<p>A Dataset is a distributed collection of data. Dataset is a new interface added in Spark 1.6 that provides the benefits of RDDs (strong typing, ability to use powerful lambda functions) with the benefits of Spark SQL’s optimized execution engine. A Dataset can be constructed from JVM objects and then manipulated using functional transformations (map, flatMap, filter, etc.). </p>
+<p>Dataset是数据的分布式集合。Dataset是Spark 1.6中添加的新界面，它具有RDD的优点（强类型输入，使用强大的lambda函数的能力）以及Spark SQL优化的执行引擎的优点。可以从JVM对象构造Dataset，然后使用transformations（map，flatMap，filter等）进行操作。</p>
+<p>A DataFrame is a Dataset organized into named columns. </p>
+<p>以列(列名、列类型、列值)的形式构成分布式的数据集</p>
+<ul>
+<li>面试题：</li>
+</ul>
+<p>RDD与DataFrame的区别？</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="Starting-Point-SparkSession"><a href="#Starting-Point-SparkSession" class="headerlink" title="Starting Point: SparkSession"></a>Starting Point: SparkSession</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"></span><br><span class="line">spark = SparkSession \</span><br><span class="line">    .builder \</span><br><span class="line">    .appName(<span class="string">"Python Spark SQL basic example"</span>) \</span><br><span class="line">    .config(<span class="string">"spark.some.config.option"</span>, <span class="string">"some-value"</span>) \</span><br><span class="line">    .getOrCreate()</span><br></pre></td></tr></table></figure>
+
+<h3 id="Creating-DataFrames"><a href="#Creating-DataFrames" class="headerlink" title="Creating DataFrames"></a>Creating DataFrames</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># spark is an existing SparkSession</span></span><br><span class="line">df = spark.read.json(<span class="string">"examples/src/main/resources/people.json"</span>)</span><br><span class="line"><span class="comment"># Displays the content of the DataFrame to stdout</span></span><br><span class="line">df.show()</span><br><span class="line"><span class="comment"># +----+-------+</span></span><br><span class="line"><span class="comment"># | age|   name|</span></span><br><span class="line"><span class="comment"># +----+-------+</span></span><br><span class="line"><span class="comment"># |null|Michael|</span></span><br><span class="line"><span class="comment"># |  30|   Andy|</span></span><br><span class="line"><span class="comment"># |  19| Justin|</span></span><br><span class="line"><span class="comment"># +----+-------+</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Untyped-Dataset-Operations-aka-DataFrame-Operations"><a href="#Untyped-Dataset-Operations-aka-DataFrame-Operations" class="headerlink" title="Untyped Dataset Operations (aka DataFrame Operations)"></a>Untyped Dataset Operations (aka DataFrame Operations)</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># spark, df are from the previous example</span></span><br><span class="line"><span class="comment"># Print the schema in a tree format</span></span><br><span class="line">df.printSchema()</span><br><span class="line"><span class="comment"># root</span></span><br><span class="line"><span class="comment"># |-- age: long (nullable = true)</span></span><br><span class="line"><span class="comment"># |-- name: string (nullable = true)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Select only the "name" column</span></span><br><span class="line">df.select(<span class="string">"name"</span>).show()</span><br><span class="line"><span class="comment"># +-------+</span></span><br><span class="line"><span class="comment"># |   name|</span></span><br><span class="line"><span class="comment"># +-------+</span></span><br><span class="line"><span class="comment"># |Michael|</span></span><br><span class="line"><span class="comment"># |   Andy|</span></span><br><span class="line"><span class="comment"># | Justin|</span></span><br><span class="line"><span class="comment"># +-------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Select everybody, but increment the age by 1</span></span><br><span class="line">df.select(df[<span class="string">'name'</span>], df[<span class="string">'age'</span>] + <span class="number">1</span>).show()</span><br><span class="line"><span class="comment"># +-------+---------+</span></span><br><span class="line"><span class="comment"># |   name|(age + 1)|</span></span><br><span class="line"><span class="comment"># +-------+---------+</span></span><br><span class="line"><span class="comment"># |Michael|     null|</span></span><br><span class="line"><span class="comment"># |   Andy|       31|</span></span><br><span class="line"><span class="comment"># | Justin|       20|</span></span><br><span class="line"><span class="comment"># +-------+---------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Select people older than 21</span></span><br><span class="line">df.filter(df[<span class="string">'age'</span>] &gt; <span class="number">21</span>).show()</span><br><span class="line"><span class="comment"># +---+----+</span></span><br><span class="line"><span class="comment"># |age|name|</span></span><br><span class="line"><span class="comment"># +---+----+</span></span><br><span class="line"><span class="comment"># | 30|Andy|</span></span><br><span class="line"><span class="comment"># +---+----+</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Count people by age</span></span><br><span class="line">df.groupBy(<span class="string">"age"</span>).count().show()</span><br><span class="line"><span class="comment"># +----+-----+</span></span><br><span class="line"><span class="comment"># | age|count|</span></span><br><span class="line"><span class="comment"># +----+-----+</span></span><br><span class="line"><span class="comment"># |  19|    1|</span></span><br><span class="line"><span class="comment"># |null|    1|</span></span><br><span class="line"><span class="comment"># |  30|    1|</span></span><br><span class="line"><span class="comment"># +----+-----+</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Running-SQL-Queries-Programmatically"><a href="#Running-SQL-Queries-Programmatically" class="headerlink" title="Running SQL Queries Programmatically"></a>Running SQL Queries Programmatically</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Register the DataFrame as a SQL temporary view</span></span><br><span class="line">df.createOrReplaceTempView(<span class="string">"people"</span>)</span><br><span class="line"></span><br><span class="line">sqlDF = spark.sql(<span class="string">"SELECT * FROM people"</span>)</span><br><span class="line">sqlDF.show()</span><br><span class="line"><span class="comment"># +----+-------+</span></span><br><span class="line"><span class="comment"># | age|   name|</span></span><br><span class="line"><span class="comment"># +----+-------+</span></span><br><span class="line"><span class="comment"># |null|Michael|</span></span><br><span class="line"><span class="comment"># |  30|   Andy|</span></span><br><span class="line"><span class="comment"># |  19| Justin|</span></span><br><span class="line"><span class="comment"># +----+-------+</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Interoperating-with-RDDs"><a href="#Interoperating-with-RDDs" class="headerlink" title="Interoperating with RDDs"></a>Interoperating with RDDs</h3><p>Spark SQL supports two different methods for converting existing RDDs into Datasets. The first method uses reflection to infer the schema of an RDD that contains specific types of objects. This reflection-based approach leads to more concise code and works well when you already know the schema while writing your Spark application.</p>
+<p>The second method for creating Datasets is through a programmatic interface that allows you to construct a schema and then apply it to an existing RDD. While this method is more verbose, it allows you to construct Datasets when the columns and their types are not known until runtime.</p>
+<p>Spark SQL支持两种将现有RDD转换为数据集的方法。第一种方法使用反射来推断包含特定对象类型的RDD的架构。这种基于反射的方法可以使代码更简洁，并且当您在编写Spark应用程序时已经了解架构时，可以很好地工作。</p>
+<p>第二种方法是通过编程界面，该界面允许您构造模式，然后将其应用于现有的RDD。尽管此方法较为冗长，但可以让您在运行时才知道列及其类型的情况下构造数据集。</p>
+<h4 id="Inferring-the-Schema-Using-Reflection"><a href="#Inferring-the-Schema-Using-Reflection" class="headerlink" title="Inferring the Schema Using Reflection"></a>Inferring the Schema Using Reflection</h4><p>Spark SQL can convert an RDD of Row objects to a DataFrame, inferring the datatypes. Rows are constructed by passing a list of key/value pairs as kwargs to the Row class. The keys of this list define the column names of the table, and the types are inferred by sampling the whole dataset, similar to the inference that is performed on JSON files.</p>
+<p>Spark SQL可以将Row对象的RDD转换为DataFrame，从而推断数据类型。通过将键/值对的列表作为kwargs传递给Row类来构造行。此列表的键定义表的列名，并且通过对整个数据集进行采样来推断类型，类似于对JSON文件执行的推断。</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> Row</span><br><span class="line"></span><br><span class="line">sc = spark.sparkContext</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load a text file and convert each line to a Row.</span></span><br><span class="line">lines = sc.textFile(<span class="string">"examples/src/main/resources/people.txt"</span>)</span><br><span class="line">parts = lines.map(<span class="keyword">lambda</span> l: l.split(<span class="string">","</span>))</span><br><span class="line">people = parts.map(<span class="keyword">lambda</span> p: Row(name=p[<span class="number">0</span>], age=int(p[<span class="number">1</span>])))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Infer the schema, and register the DataFrame as a table.</span></span><br><span class="line">schemaPeople = spark.createDataFrame(people)</span><br><span class="line">schemaPeople.createOrReplaceTempView(<span class="string">"people"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># SQL can be run over DataFrames that have been registered as a table.</span></span><br><span class="line">teenagers = spark.sql(<span class="string">"SELECT name FROM people WHERE age &gt;= 13 AND age &lt;= 19"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># The results of SQL queries are Dataframe objects.</span></span><br><span class="line"><span class="comment"># rdd returns the content as an :class:`pyspark.RDD` of :class:`Row`.</span></span><br><span class="line">teenNames = teenagers.rdd.map(<span class="keyword">lambda</span> p: <span class="string">"Name: "</span> + p.name).collect()</span><br><span class="line"><span class="keyword">for</span> name <span class="keyword">in</span> teenNames:</span><br><span class="line">    print(name)</span><br><span class="line"><span class="comment"># Name: Justin</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Programmatically-Specifying-the-Schema"><a href="#Programmatically-Specifying-the-Schema" class="headerlink" title="Programmatically Specifying the Schema"></a>Programmatically Specifying the Schema</h4><p>When a dictionary of kwargs cannot be defined ahead of time (for example, the structure of records is encoded in a string, or a text dataset will be parsed and fields will be projected differently for different users), a DataFrame can be created programmatically with three steps.</p>
+<ol>
+<li>Create an RDD of tuples or lists from the original RDD;</li>
+<li>Create the schema represented by a StructType matching the structure of tuples or lists in the RDD created in the step 1.</li>
+<li>Apply the schema to the RDD via createDataFrame method provided by SparkSession.</li>
+</ol>
+<p>如果无法提前定义kwarg的字典（例如，记录的结构编码为字符串，或者将解析文本数据集，并且为不同的用户投影不同的字段），则可以使用以下方式以编程方式创建DataFrame：三个步骤。</p>
+<ol>
+<li>从原始RDD创建元组或列表的RDD；</li>
+<li>在第1步中创建的RDD中，创建一个由StructType表示的模式来匹配元组或列表的结构。</li>
+<li>通过SparkSession提供的createDataFrame方法将架构应用于RDD。</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Import data types</span></span><br><span class="line"><span class="keyword">from</span> pyspark.sql.types <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sc = spark.sparkContext</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load a text file and convert each line to a Row.</span></span><br><span class="line">lines = sc.textFile(<span class="string">"examples/src/main/resources/people.txt"</span>)</span><br><span class="line">parts = lines.map(<span class="keyword">lambda</span> l: l.split(<span class="string">","</span>))</span><br><span class="line"><span class="comment"># Each line is converted to a tuple.</span></span><br><span class="line">people = parts.map(<span class="keyword">lambda</span> p: (p[<span class="number">0</span>], p[<span class="number">1</span>].strip()))</span><br><span class="line"></span><br><span class="line"><span class="comment"># The schema is encoded in a string.</span></span><br><span class="line">schemaString = <span class="string">"name age"</span></span><br><span class="line"></span><br><span class="line">fields = [StructField(field_name, StringType(), <span class="literal">True</span>) <span class="keyword">for</span> field_name <span class="keyword">in</span> schemaString.split()]</span><br><span class="line">schema = StructType(fields)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Apply the schema to the RDD.</span></span><br><span class="line">schemaPeople = spark.createDataFrame(people, schema)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Creates a temporary view using the DataFrame</span></span><br><span class="line">schemaPeople.createOrReplaceTempView(<span class="string">"people"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># SQL can be run over DataFrames that have been registered as a table.</span></span><br><span class="line">results = spark.sql(<span class="string">"SELECT name FROM people"</span>)</span><br><span class="line"></span><br><span class="line">results.show()</span><br><span class="line"><span class="comment"># +-------+</span></span><br><span class="line"><span class="comment"># |   name|</span></span><br><span class="line"><span class="comment"># +-------+</span></span><br><span class="line"><span class="comment"># |Michael|</span></span><br><span class="line"><span class="comment"># |   Andy|</span></span><br><span class="line"><span class="comment"># | Justin|</span></span><br><span class="line"><span class="comment"># +-------+</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
+      <tags>
+        <tag>Spark</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SparkExecutor内存管理</title>
-    <url>/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
+    <url>/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
     <content><![CDATA[<p>以下文章来源于vivo互联网技术 ，作者郑志彬</p>
 <p>我们都知道 Spark 能够有效的利用内存并进行分布式计算，其内存管理模块在整个系统中扮演着非常重要的角色。为了更好地利用 Spark，深入地理解其内存管理模型具有非常重要的意义，这有助于我们对 Spark 进行更好的调优；在出现各种内存问题时，能够摸清头脑，找到哪块内存区域出现问题。</p>
 <p>首先我们知道在执行 Spark 的应用程序时，Spark 集群会启动 Driver 和 Executor 两种 JVM 进程，前者为主控进程，负责创建 Spark 上下文，提交 Spark 作业（Job），并将作业转化为计算任务（Task），在各个 Executor 进程间协调任务的调度，后者负责在工作节点上执行具体的计算任务，并将结果返回给 Driver，同时为需要持久化的 RDD 提供存储功能。由于 Driver 的内存管理相对来说较为简单，本文主要对 Executor 的内存管理进行分析，下文中的 Spark 内存均特指 Executor 的内存。</p>
@@ -30,7 +211,7 @@
 <p>对于Yarn集群，存在: ExecutorMemory + MemoryOverhead &lt;= MonitorMemory，若应用提交之时，指定的 ExecutorMemory 与 MemoryOverhead 之和大于 MonitorMemory，则会导致 Executor 申请失败；若运行过程中，实际使用内存超过上限阈值，Executor 进程会被 Yarn 终止掉 (kill)。</p>
 <h2 id="统一内存管理"><a href="#统一内存管理" class="headerlink" title="统一内存管理"></a>统一内存管理</h2><p>Spark 1.6之后引入了统一内存管理，包括了堆内内存 (On-heap Memory) 和堆外内存 (Off-heap Memory) 两大区域，下面对这两块区域进行详细的说明。</p>
 <h3 id="堆内内存-On-heap-Memory"><a href="#堆内内存-On-heap-Memory" class="headerlink" title="堆内内存 (On-heap Memory)"></a>堆内内存 (On-heap Memory)</h3><p>默认情况下，Spark 仅仅使用了堆内内存。Spark 对堆内内存的管理是一种逻辑上的“规划式”的管理，Executor 端的堆内内存区域在逻辑上被划分为以下四个区域：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%A0%86%E5%86%85%E5%86%85%E5%AD%98.png" class title="堆内内存">
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%A0%86%E5%86%85%E5%86%85%E5%AD%98.png" class title="堆内内存">
 
 
 <ul>
@@ -44,7 +225,7 @@
 </li>
 </ul>
 <p>下面的图对这个四个内存区域的分配比例做了详细的描述：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.jpg" class title="内存管理">
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.jpg" class title="内存管理">
 
 <p>（1）预留内存 (Reserved Memory)</p>
 <p>系统预留内存，会用来存储Spark内部对象。其大小在代码中是写死的，其值等于 300MB，这个值是不能修改的（如果在测试环境下，我们可以通过 spark.testing.reservedMemory 参数进行修改）；如果Executor分配的内存小于 1.5 * 300 = 450M 时，Executor将无法执行。</p>
@@ -73,7 +254,7 @@
 <h3 id="堆外内存-Off-heap-Memory"><a href="#堆外内存-Off-heap-Memory" class="headerlink" title="堆外内存 (Off-heap Memory)"></a>堆外内存 (Off-heap Memory)</h3><p>Spark 1.6 开始引入了 Off-heap memory (详见SPARK-11389)。这种模式不在 JVM 内申请内存，而是调用 Java 的 unsafe 相关 API 进行诸如 C 语言里面的 malloc() 直接向操作系统申请内存。这种方式下 Spark 可以直接操作系统堆外内存，减少了不必要的内存开销，以及频繁的 GC 扫描和回收，提升了处理性能。另外，堆外内存可以被精确地申请和释放，而且序列化的数据占用的空间可以被精确计算，所以相比堆内内存来说降低了管理的难度，也降低了误差。，缺点是必须自己编写内存申请和释放的逻辑。</p>
 <p>默认情况下Off-heap模式的内存并不启用，我们可以通过 spark.memory.offHeap.enabled 参数开启，并由 spark.memory.offHeap.size 指定堆外内存的大小，单位是字节（占用的空间划归 JVM OffHeap 内存）。</p>
 <p>如果堆外内存被启用，那么 Executor 内将同时存在堆内和堆外内存，两者的使用互补影响，这个时候 Executor 中的 Execution 内存是堆内的 Execution 内存和堆外的 Execution 内存之和，同理，Storage 内存也一样。其内存分布如下图所示：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98.png" class title="堆外内存">
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98.png" class title="堆外内存">
 
 <p>相比堆内内存，堆外内存只区分 Execution 内存和 Storage 内存：</p>
 <p>（1）存储内存 (Storage Memory)</p>
@@ -83,7 +264,7 @@
 <h3 id="Execution-内存和-Storage-内存动态占用机制"><a href="#Execution-内存和-Storage-内存动态占用机制" class="headerlink" title="Execution 内存和 Storage 内存动态占用机制"></a>Execution 内存和 Storage 内存动态占用机制</h3><p>在 Spark 1.5 之前，Execution 内存和 Storage 内存分配是静态的，换句话说就是如果 Execution 内存不足，即使 Storage 内存有很大空闲程序也是无法利用到的；反之亦然。</p>
 <p>静态内存管理机制实现起来较为简单，但如果用户不熟悉 Spark 的存储机制，或没有根据具体的数据规模和计算任务或做相应的配置，很容易造成”一半海水，一半火焰”的局面，即存储内存和执行内存中的一方剩余大量的空间，而另一方却早早被占满，不得不淘汰或移出旧的内容以存储新的内容。</p>
 <p>统一内存管理机制，与静态内存管理最大的区别在于存储内存和执行内存共享同一块空间，可以动态占用对方的空闲区域：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.jpg" class title="统一内存管理">
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.jpg" class title="统一内存管理">
 
 <p>其中最重要的优化在于动态占用机制，其规则如下：</p>
 <ul>
@@ -124,18 +305,18 @@
 C = spark.task.cpus</code></pre><p>由此每个 Executor 的最大任务并行度可表示为 : TP = N / C 。</p>
 <p>其中，C 值与应用类型有关，大部分应用使用默认值 1 即可，因此，影响 Executor 中最大任务并行度（最大活跃task数）的主要因素是 N。</p>
 <p>依据 Task 的内存使用特征，前文所述的 Executor 内存模型可以简单抽象为下图所示模型：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" class title="内存模型">
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" class title="内存模型">
 
 <p>其中，Executor 向 yarn 申请的总内存可表示为 : M = M1 + M2 。</p>
 <p>如果考虑堆外内存则大概是如下结构：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E8%80%83%E8%99%91%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98.png" class title="考虑堆外内存">
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/%E8%80%83%E8%99%91%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98.png" class title="考虑堆外内存">
 
 
 <h3 id="一个示例"><a href="#一个示例" class="headerlink" title="一个示例"></a>一个示例</h3><p>为了更好的理解上面堆内内存和堆外内存的使用情况，这里给出一个简单的例子。</p>
 <p>（1）只用了堆内内存</p>
 <p>现在我们提交的 Spark 作业关于内存的配置如下：–executor-memory 18g</p>
 <p>由于没有设置spark.memory.fraction 和 spark.memory.storageFraction 参数，我们可以看到 Spark UI 关于 Storage Memory 的显示如下：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/storage1.png" class>
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/storage1.png" class>
 
 <p>上图很清楚地看到 Storage Memory 的可用内存是 10.1GB，这个数是咋来的呢？根据前面的规则，我们可以得出以下的计算：</p>
 <pre><code>systemMemory = spark.executor.memory
@@ -172,7 +353,7 @@ Runtime.getRuntime.maxMemory = Eden + Survivor + Tenured</code></pre><p>上面�
 <pre><code>spark.executor.memory           18g
 spark.memory.offHeap.enabled   true
 spark.memory.offHeap.size       10737418240</code></pre><p>从上面可以看出，堆外内存为 10GB，现在 Spark UI 上面显示的 Storage Memory 可用内存为 20.9GB，如下：</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/storage2.png" class>
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/storage2.png" class>
 
 <p>其实 Spark UI 上面显示的 Storage Memory 可用内存等于堆内内存和堆外内存之和，计算公式如下：</p>
 <p>堆内:</p>
@@ -195,7 +376,7 @@ StorageMemory = totalOnHeapStorageMemory + totalOffHeapStorageMemory
 <pre><code>spark.executor.memory : 16 GB
 Max executor peak JVM used memory : 6.6 GB
 
-Suggested spark.executor.memory : 7 GB</code></pre><img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory1.png" class>
+Suggested spark.executor.memory : 7 GB</code></pre><img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory1.png" class>
 
 <p>（2） Executor Unified Memory Heuristic</p>
 <p>现象：分配的统一内存 (Unified Memory = Storage Memory + Execution Memory) 比 executor 实际使用的统一内存大的多。</p>
@@ -208,7 +389,7 @@ Allocated unified memory : 6 GB
 Max peak JVM userd memory : 7.2 GB
 Max peak unified memory : 1.2 GB
 
-Suggested spark.memory.fraction : 0.2</code></pre><img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory2.png" class>
+Suggested spark.memory.fraction : 0.2</code></pre><img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory2.png" class>
 
 <p>（3）Executor OOM类错误 （错误代码 137、143等）</p>
 <p>该类错误一般是由于 Heap（M2）已达上限，Task 需要更多的内存，而又得不到足够的内存而导致。因此，解决方案要从增加每个 Task 的内存使用量，满足任务需求 或 降低单个 Task 的内存消耗量，从而使现有内存可以满足任务运行需求两个角度出发。因此有如下解决方案：</p>
@@ -225,13 +406,13 @@ P = spark.sql.shuffle.partition (SQL 应用)</code></pre><p>通过增加 P 的�
 <p>Executor OOM 一般发生 Shuffle 阶段，该阶段需求计算内存较大，且应用逻辑对内存需求有较大影响，下面举例就行说明：</p>
 <p>选择合适的算子，如 groupByKey 转换为 reduceByKey。</p>
 <p>一般情况下，groupByKey 能实现的功能使用 reduceByKey 均可实现，而 ReduceByKey 存在 Map 端的合并，可以有效减少传输带宽占用及 Reduce 端内存消耗。</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory3.png" class>
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory3.png" class>
 
 <p>b.避免数据倾斜 (data skew)</p>
 <p>Data Skew 是指任务间处理的数据量存大较大的差异。</p>
 <p>如左图所示，key 为 010 的数据较多，当发生 shuffle 时，010 所在分区存在大量数据，不仅拖慢 Job 执行（Job 的执行时间由最后完成的任务决定）。而且导致 010 对应 Task 内存消耗过多，可能导致 OOM。</p>
 <p>而右图，经过预处理（加盐，此处仅为举例说明问题，解决方法不限于此）可以有效减少 Data Skew 导致的问题。</p>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory4.png" class>
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory4.png" class>
 
 <blockquote>
 <p>NOTE</p>
@@ -248,7 +429,7 @@ P = spark.sql.shuffle.partition (SQL 应用)</code></pre><p>通过增加 P 的�
 <li><p>解决方案：同 3。</p>
 </li>
 </ul>
-<img data-src="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory5.png" class>
+<img data-src="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/memory5.png" class>
 
 <p>（5） Executor GC Heuristic</p>
 <ul>
@@ -288,123 +469,9 @@ P = spark.sql.shuffle.partition (SQL 应用)</code></pre><p>通过增加 P 的�
 <p>b. 自定义 Shell 场景:（OverHead 不足为假象）</p>
 <p>调整子进程可用内存量 (通过单机测试，内存控制在 Container 监控内存以内，且为 Spark 保留内存等留有空间）。</p>
 ]]></content>
-      <tags>
-        <tag>Spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spark项目实战</title>
-    <url>/2020/03/23/Spark%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/</url>
-    <content><![CDATA[<h2 id="企业大数据开发流程"><a href="#企业大数据开发流程" class="headerlink" title="企业大数据开发流程"></a>企业大数据开发流程</h2><ol>
-<li><p>调研</p>
-<p> 业务</p>
-</li>
-<li><p>需求分析</p>
-<p> 项目的需求</p>
-<ul>
-<li><p>显示</p>
-</li>
-<li><p>隐示</p>
-<p>甘特图：项目周期管理</p>
-</li>
-</ul>
-</li>
-<li><p>方案设计</p>
-<ul>
-<li><p>概要设计</p>
-</li>
-<li><p>详细设计</p>
-<p>  基本要求</p>
-<p>  系统要求：扩展性、容错性、高可用、定制化</p>
-</li>
-</ul>
-</li>
-<li><p>功能开发</p>
-<p> 开发</p>
-<p> 单元测试 junit</p>
-</li>
-<li><p>测试</p>
-<p> 测试环境 QA</p>
-<p> 功能、性能、压力</p>
-<p> 用户测试</p>
-</li>
-<li><p>部署上线</p>
-<p> 试运行 DIFF ‘双活’</p>
-<p> 正式上线</p>
-</li>
-<li><p>运维</p>
-<p> 7*24</p>
-</li>
-<li><p>后期迭代开发</p>
-</li>
-</ol>
-<h2 id="大数据企业级应用"><a href="#大数据企业级应用" class="headerlink" title="大数据企业级应用"></a>大数据企业级应用</h2><ol>
-<li><p>数据分析</p>
-<p>商业</p>
-<p>自研</p>
-</li>
-<li><p>搜索/引擎</p>
-<p> Lucene/Solr/ELK</p>
-</li>
-<li><p>机器学习</p>
-</li>
-<li><p>精准营销</p>
-<p> 用户画像</p>
-</li>
-<li><p>人工智能</p>
-<p> python应用</p>
-</li>
-</ol>
-<h2 id="企业级大数据分析平台"><a href="#企业级大数据分析平台" class="headerlink" title="企业级大数据分析平台"></a>企业级大数据分析平台</h2><ol>
-<li><p>目的&amp;本质</p>
-<p> 目的：根据输入数据进行类型的业务分析得到输出结果来满足客户方的需求</p>
-<p> 本质：提取数据中的价值</p>
-</li>
-<li><p>离线&amp;实时</p>
-<p> 同一个业务大部分进行离线和实时相结合的实现</p>
-</li>
-<li><p>商业&amp;自研</p>
-<ul>
-<li><p>商业</p>
-<ul>
-<li>可定制性差</li>
-<li>费用高</li>
-<li>数据安全和保密性不稳定</li>
-</ul>
-</li>
-<li><p>自研</p>
-<ul>
-<li>开发成本高</li>
-<li>Apache(较多问题)</li>
-<li>CDH</li>
-<li>HDP</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<h2 id="数据量预估及集群规划"><a href="#数据量预估及集群规划" class="headerlink" title="数据量预估及集群规划"></a>数据量预估及集群规划</h2><p><strong>Q：一条日志多大、多少字段、一天多少数据</strong></p>
-<p>300~500字节</p>
-<p>300~500字节 * 1000W(一天访问数) * 5(一个人访问五次) * 5(一个人访问五个页面) = 100G</p>
-<p>HDFS 3副本 * 100G * (2~3年)</p>
-<p><strong>服务器一台：磁盘多少  ==&gt; Node数量</strong></p>
-<p>集群规模：数据量 + 存储周期</p>
-<p><strong>集群机器规模</strong></p>
-<p>DataNode：数据量大小/每个Node的磁盘大小</p>
-<p>NameNode：2</p>
-<p>ResourceManager：2</p>
-<p>NodeManager：DN</p>
-<p>ZK：3/5/7/9</p>
-<p>GATEWAY：</p>
-<p><strong>资源设置</strong></p>
-<p>cpu/memory/disk/network</p>
-<p><strong>作业规划</strong></p>
-<p>MapReduce/Hive/Spark</p>
-<p>Server：</p>
-<p>调度：AZ、OOZIE</p>
-<h2 id="项目实战"><a href="#项目实战" class="headerlink" title="项目实战"></a>项目实战</h2><p>需求：使用PySpark分析空气质量</p>
-<p>数据来源：<a href="http://stateair.net/web/post/1/1.html" target="_blank" rel="noopener">http://stateair.net/web/post/1/1.html</a></p>
-]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
       <tags>
         <tag>Spark</tag>
       </tags>
@@ -470,6 +537,9 @@ $SPARK_HOME/conf/spark-env.sh
 <li>ANY data is elsewhere on the network and not in the same rack</li>
 </ul>
 ]]></content>
+      <categories>
+        <category>Spark系列</category>
+      </categories>
       <tags>
         <tag>Spark</tag>
       </tags>

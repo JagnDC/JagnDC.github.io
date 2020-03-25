@@ -198,7 +198,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -212,7 +212,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">SparkExecutor内存管理</a>
+            <a href="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/" class="post-title-link" itemprop="url">Spark(七) · SparkStreaming核心</a>
         </h2>
 
         <div class="post-meta">
@@ -222,15 +222,24 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-03-23 12:43:05" itemprop="dateCreated datePublished" datetime="2020-03-23T12:43:05+08:00">2020-03-23</time>
+              <time title="创建时间：2020-03-23 19:52:12" itemprop="dateCreated datePublished" datetime="2020-03-23T19:52:12+08:00">2020-03-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-24 08:23:32" itemprop="dateModified" datetime="2020-03-24T08:23:32+08:00">2020-03-24</time>
+                <time title="修改时间：2020-03-25 21:09:28" itemprop="dateModified" datetime="2020-03-25T21:09:28+08:00">2020-03-25</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spark%E7%B3%BB%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">Spark系列</span></a>
+                </span>
+            </span>
 
           
   
@@ -241,8 +250,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -257,11 +266,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>以下文章来源于vivo互联网技术 ，作者郑志彬</p>
-<p>我们都知道 Spark 能够有效的利用内存并进行分布式计算，其内存管理模块在整个系统中扮演着非常重要的角色。为了更好地利用 Spark，深入地理解其内存管理模型具有非常重要的意义，这有助于我们对 Spark 进行更好的调优；在出现各种内存问题时，能够摸清头脑，找到哪块内存区域出现问题。</p>
+          <p>Spark Streaming是<strong>核心Spark API的扩展</strong>，可实现实时数据流的<strong>可伸缩</strong>，<strong>高吞吐量</strong>，<strong>容错流处理</strong>。可以从许多数据源（例如Kafka，Flume，Kinesis或TCP套接字）中提取数据，并可以使用以高级功能（如map，reduce，join和window）表示的复杂算法来处理数据。最后，可以将处理后的数据推送到文件系统，数据库和实时仪表板。实际上，可以在数据流上应用Spark的机器学习和图形处理算法。</p>
+<img data-src="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/streaming-arch.png" class title="streaming-arch">
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/03/23/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#more" rel="contents">
+              <a class="btn" href="/2020/03/23/SparkStreaming%E6%A0%B8%E5%BF%83/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -285,7 +294,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/03/23/Spark%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/">
+    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -299,7 +308,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/23/Spark%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" class="post-title-link" itemprop="url">Spark项目实战</a>
+            <a href="/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/" class="post-title-link" itemprop="url">Spark(六) · SparkSQL核心</a>
         </h2>
 
         <div class="post-meta">
@@ -308,9 +317,24 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-03-23 09:42:52 / 修改时间：10:14:38" itemprop="dateCreated datePublished" datetime="2020-03-23T09:42:52+08:00">2020-03-23</time>
+              <time title="创建时间：2020-03-22 18:10:49" itemprop="dateCreated datePublished" datetime="2020-03-22T18:10:49+08:00">2020-03-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-25 20:20:18" itemprop="dateModified" datetime="2020-03-25T20:20:18+08:00">2020-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spark%E7%B3%BB%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">Spark系列</span></a>
+                </span>
             </span>
 
           
@@ -322,8 +346,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2020/03/23/Spark%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/23/Spark%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -338,52 +362,107 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="企业大数据开发流程"><a href="#企业大数据开发流程" class="headerlink" title="企业大数据开发流程"></a>企业大数据开发流程</h2><ol>
-<li><p>调研</p>
-<p> 业务</p>
-</li>
-<li><p>需求分析</p>
-<p> 项目的需求</p>
-<ul>
-<li><p>显示</p>
-</li>
-<li><p>隐示</p>
-<p>甘特图：项目周期管理</p>
-</li>
-</ul>
-</li>
-<li><p>方案设计</p>
-<ul>
-<li><p>概要设计</p>
-</li>
-<li><p>详细设计</p>
-<p>  基本要求</p>
-<p>  系统要求：扩展性、容错性、高可用、定制化</p>
-</li>
-</ul>
-</li>
-<li><p>功能开发</p>
-<p> 开发</p>
-<p> 单元测试 junit</p>
-</li>
-<li><p>测试</p>
-<p> 测试环境 QA</p>
-<p> 功能、性能、压力</p>
-<p> 用户测试</p>
-</li>
-<li><p>部署上线</p>
-<p> 试运行 DIFF ‘双活’</p>
-<p> 正式上线</p>
-</li>
-<li><p>运维</p>
-<p> 7*24</p>
-</li>
-<li><p>后期迭代开发</p>
-</li>
-</ol>
+          <p>Spark SQL是用于结构化数据处理的Spark模块。与基本的Spark RDD API不同，Spark SQL提供的接口为Spark提供了有关数据结构和正在执行的计算的更多信息。在内部，Spark SQL使用这些额外的信息来执行额外的优化。与Spark SQL交互的方法有多种，包括SQL和Dataset API。计算结果时，将使用相同的执行引擎，而与要用来表达计算的API/语言无关。这种统一意味着开发人员可以轻松地在不同的API之间来回切换，从而提供最自然的方式来表达给定的转换。</p>
+<h2 id="SparkSQL背景"><a href="#SparkSQL背景" class="headerlink" title="SparkSQL背景"></a>SparkSQL背景</h2>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/03/23/Spark%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/#more" rel="contents">
+              <a class="btn" href="/2020/03/22/SparkSQL%E6%A0%B8%E5%BF%83/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JagnDC">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JagnDC">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">SparkExecutor内存管理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-21 21:43:05" itemprop="dateCreated datePublished" datetime="2020-03-21T21:43:05+08:00">2020-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-25 20:21:30" itemprop="dateModified" datetime="2020-03-25T20:21:30+08:00">2020-03-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spark%E7%B3%BB%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">Spark系列</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>以下文章来源于vivo互联网技术 ，作者郑志彬</p>
+<p>我们都知道 Spark 能够有效的利用内存并进行分布式计算，其内存管理模块在整个系统中扮演着非常重要的角色。为了更好地利用 Spark，深入地理解其内存管理模型具有非常重要的意义，这有助于我们对 Spark 进行更好的调优；在出现各种内存问题时，能够摸清头脑，找到哪块内存区域出现问题。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/21/SparkExecutor%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -438,8 +517,17 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-24 11:54:54" itemprop="dateModified" datetime="2020-03-24T11:54:54+08:00">2020-03-24</time>
+                <time title="修改时间：2020-03-25 20:21:18" itemprop="dateModified" datetime="2020-03-25T20:21:18+08:00">2020-03-25</time>
               </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spark%E7%B3%BB%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">Spark系列</span></a>
+                </span>
+            </span>
 
           
   
@@ -525,7 +613,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-22 20:48:20" itemprop="dateModified" datetime="2020-03-22T20:48:20+08:00">2020-03-22</time>
+                <time title="修改时间：2020-03-25 20:21:05" itemprop="dateModified" datetime="2020-03-25T20:21:05+08:00">2020-03-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -620,7 +708,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-24 10:33:49" itemprop="dateModified" datetime="2020-03-24T10:33:49+08:00">2020-03-24</time>
+                <time title="修改时间：2020-03-25 19:52:47" itemprop="dateModified" datetime="2020-03-25T19:52:47+08:00">2020-03-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -725,7 +813,7 @@ pyspark/spark-submit
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-19 10:39:42" itemprop="dateModified" datetime="2020-03-19T10:39:42+08:00">2020-03-19</time>
+                <time title="修改时间：2020-03-25 19:53:01" itemprop="dateModified" datetime="2020-03-25T19:53:01+08:00">2020-03-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -820,7 +908,7 @@ pyspark/spark-submit
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-19 10:39:26" itemprop="dateModified" datetime="2020-03-19T10:39:26+08:00">2020-03-19</time>
+                <time title="修改时间：2020-03-25 20:21:02" itemprop="dateModified" datetime="2020-03-25T20:21:02+08:00">2020-03-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -915,7 +1003,7 @@ pyspark/spark-submit
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-19 10:39:19" itemprop="dateModified" datetime="2020-03-19T10:39:19+08:00">2020-03-19</time>
+                <time title="修改时间：2020-03-25 20:20:55" itemprop="dateModified" datetime="2020-03-25T20:20:55+08:00">2020-03-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1071,101 +1159,6 @@ pyspark/spark-submit
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://jagndc.coding.net/p/jagndc/d/blog/git/2020/02/10/Spark%E5%AE%89%E8%A3%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="JagnDC">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="JagnDC">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/10/Spark%E5%AE%89%E8%A3%85/" class="post-title-link" itemprop="url">Spark安装</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-10 11:28:23" itemprop="dateCreated datePublished" datetime="2020-02-10T11:28:23+08:00">2020-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-03-19 10:40:26" itemprop="dateModified" datetime="2020-03-19T10:40:26+08:00">2020-03-19</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">安装教程</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2020/02/10/Spark%E5%AE%89%E8%A3%85/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/02/10/Spark%E5%AE%89%E8%A3%85/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="下载Spark"><a href="#下载Spark" class="headerlink" title="下载Spark"></a>下载Spark</h2><p>根据地址选择下载版本</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/10/Spark%E5%AE%89%E8%A3%85/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1236,7 +1229,7 @@ pyspark/spark-submit
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

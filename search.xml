@@ -1591,8 +1591,8 @@ SELECT * FROM A WHERE EXIST (SELECT cc FROM B WHERE B.cc=A.cc)</code></pre><p>�
         <category>安装教程</category>
       </categories>
       <tags>
-        <tag>教程</tag>
         <tag>Spark</tag>
+        <tag>教程</tag>
       </tags>
   </entry>
   <entry>
